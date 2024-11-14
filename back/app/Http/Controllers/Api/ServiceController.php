@@ -35,9 +35,9 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
+            'name' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric',
         ]);
 
         $service->update($validated);

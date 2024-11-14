@@ -49,10 +49,10 @@ class UserController extends Controller
         $user = User::findOrFail($id);
 
         $validated = $request->validate([
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:6',
-            'full_name' => 'required|string',
-            'phone_number' => 'nullable|string',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'sometimes|min:6',
+            'full_name' => 'sometimes|string',
+            'phone_number' => 'sometimes|string',
         ]);
 
         if (isset($validated['password'])) {

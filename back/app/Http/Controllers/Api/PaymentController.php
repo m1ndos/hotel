@@ -47,11 +47,11 @@ class PaymentController extends Controller
         $payment = Payment::findOrFail($id);
 
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'booking_id' => 'required|exists:bookings,id',
-            'amount' => 'required|numeric',
-            'payment_method' => 'required|string',
-            'payment_status' => 'required|string',
+            'user_id' => 'sometimes|exists:users,id',
+            'booking_id' => 'sometimes|exists:bookings,id',
+            'amount' => 'sometimes|numeric',
+            'payment_method' => 'sometimes|string',
+            'payment_status' => 'sometimes|string',
         ]);
 
         $payment->update(array_filter($validated)); // Фильтруем пустые значения

@@ -39,12 +39,12 @@ class RoomController extends Controller
         $room = Room::findOrFail($id);
 
         $validated = $request->validate([
-            'room_number' => 'required|string|unique:rooms,room_number,' . $room->id,
-            'type' => 'required|string',
-            'description' => 'nullable|string',
-            'price_per_night' => 'required|numeric',
-            'is_available' => 'required|boolean',
-            'capacity' => 'required|integer',
+            'room_number' => 'sometimes|string|unique:rooms,room_number,' . $room->id,
+            'type' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'price_per_night' => 'sometimes|numeric',
+            'is_available' => 'sometimes|boolean',
+            'capacity' => 'sometimes|integer',
         ]);
 
         $room->update($validated);
