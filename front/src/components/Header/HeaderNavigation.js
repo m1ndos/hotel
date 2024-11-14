@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 const HeaderNavigation = () => {
   const [activePage, setActivePage] = useState('home'); // состояние активной страницы
 
-  const pages = ['Главная', 'Номера', 'Услуги', 'Мои бронирования', 'Личный кабинет']
+  const pages = ['Главная', 'Номерной фонд', 'Услуги', 'Мои бронирования', 'Личный кабинет']
 
   return (
     <nav style={navStyle}>
