@@ -53,7 +53,6 @@ const footerStyle = {
   
   const rightSectionStyle = {
     flex: '1',
-    gap: '5px',
     textAlign: 'right',
     color: '#50464D',
   };
