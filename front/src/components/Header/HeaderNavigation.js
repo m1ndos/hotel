@@ -40,19 +40,21 @@ const HeaderNavigation = () => {
 };
 
 const navStyle = {
-  position: 'absolute', // фиксируем навигацию вверху страницы
-  top: '0', // привязываем к верхней части страницы
+  position: 'absolute', 
+  top: '0', 
   left: '0',
   width: '100%',
   display: 'flex',
   justifyContent: 'start',
   alignItems: 'center',
-  gap: '50px',
-  padding: '20px 0px 0px 50px', // Отступы для удобства
+  gap: '20px', // Уменьшение промежутка между кнопками
+  padding: '20px 0 0 20px', // Паддинг для предотвращения выхода за пределы
+  overflowX: 'hidden', // Отключение горизонтального скролла
+  boxSizing: 'border-box', // Включаем учет паддингов в ширину
 };
 
 const buttonStyle = {
-  padding: '10px 50px',
+  padding: '10px 30px', // Уменьшены отступы для кнопок
   fontSize: '20px',
   color: '#50464D',
   backgroundColor: 'transparent',
@@ -66,19 +68,19 @@ const activeButtonStyle = {
   backgroundColor: '#50464D', // Цвет фона для активной страницы
   borderRadius: 33,
   color: '#fff', // Цвет текста для активной страницы
-  padding: '10px 50px',
+  padding: '10px 30px', // Уменьшены отступы для кнопок
 };
 
 const bookButtonStyle = {
   padding: '10px 30px',
   fontSize: '20px',
-  backgroundColor: '#fff', // Рыжий цвет для кнопки
-  color: '#FA8653', // Белый цвет текста
+  backgroundColor: '#fff',
+  color: '#FA8653',
   border: 'none',
   borderRadius: 33,
   cursor: 'pointer',
   transition: 'background-color 0.3s ease',
-  marginLeft: '50px', // Отступ от предыдущих кнопок
+  marginLeft: '20px', // Отступ от предыдущих кнопок
 };
 
 export default HeaderNavigation;
