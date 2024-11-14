@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Импортируем useNavigate для навигации
 import BackgroundImage from "../../images/HeaderBackGround.png";
 
 // Динамическое добавление шрифта в <head>
@@ -11,9 +12,21 @@ fontImport.appendChild(
 document.head.appendChild(fontImport);
 
 const HeaderGround = () => {
+  const navigate = useNavigate(); // Инициализируем хук навигации
+
+  // Обработчик клика на название "Atlanta"
+  const handleClick = () => {
+    navigate('/'); // Переход на главную страницу
+  };
+
   return (
     <div style={containerStyle}>
-      <h1 style={textStyle}>Atlanta</h1>
+      <h1 
+        style={textStyle} 
+        onClick={handleClick} // Обрабатываем клик
+      >
+        Atlanta
+      </h1>
     </div>
   );
 };
@@ -27,7 +40,6 @@ const containerStyle = {
   backgroundPosition: 'center',
   display: 'flex',
   justifyContent: 'center',
-  // alignItems: 'flex-end',
   overflow: 'visible', // Позволяет тексту выходить за границы
 };
 
@@ -40,6 +52,7 @@ const textStyle = {
   position: 'relative',
   paddingTop: '190px', // Отрицательный отступ, чтобы часть текста находилась ниже изображения
   margin: 0,
+  cursor: 'pointer', // Меняем курсор на указатель при наведении
 };
 
 export default HeaderGround;
