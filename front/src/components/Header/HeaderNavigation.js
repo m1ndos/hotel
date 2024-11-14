@@ -11,11 +11,14 @@ const HeaderNavigation = () => {
     { name: 'Номерной фонд', path: '/categories' },
     { name: 'Услуги', path: '/services' },  // Для других страниц, добавьте их пути
     { name: 'Мои бронирования', path: '/bookings' },
-    { name: 'Личный кабинет', path: '/profile' }
+    { name: 'Личный кабинет', path: '/profile' },
   ];
 
   const handleNavigation = (path) => {
     navigate(path); // Переход на нужный маршрут
+  };
+  const handleNavigationBooking = () => {
+    navigate('/booking'); // Переход на нужный маршрут
   };
 
   return (
@@ -37,10 +40,7 @@ const HeaderNavigation = () => {
           ...bookButtonStyle,
           backgroundColor: isHovered ? '#50464D' : '#fff', // Изменяем цвет фона при наведении
         }}
-        onClick={() => {
-          // Обработка клика, например, переход на страницу бронирования
-          alert('Перейти к бронированию');
-        }}
+        onClick={() => handleNavigationBooking()} // Переход при клике
         onMouseEnter={() => setIsHovered(true)} // При наведении
         onMouseLeave={() => setIsHovered(false)} // При уходе курсора
       >

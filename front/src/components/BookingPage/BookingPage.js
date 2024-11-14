@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import DatePicker from "react-datepicker";  // Это правильный импорт
-
+import DatePicker from "react-datepicker"; // Это правильный импорт
 import 'react-datepicker/dist/react-datepicker.css'; // Стиль для календаря
 
 // Пример данных о номерах (в реальности это будут данные с сервера)
@@ -36,11 +35,13 @@ const rooms = [
 ];
 
 const BookingPage = () => {
-  const [startDate, setStartDate] = useState(new Date()); // Дата начала бронирования
+  const [dateRange, setDateRange] = useState([new Date(), new Date()]); // Диапазон дат
   const [peopleCount, setPeopleCount] = useState(1); // Количество проживающих
-  const [availableRooms, setAvailableRooms] = useState([]); // Доступные номера
+  const [availableRooms, setAvailableRooms] = useState(rooms); // Доступные номера
 
-  // Фильтрация номеров по количеству людей
+  const [startDate, endDate] = dateRange;
+
+  // Фильтрация номеров по количеству людей и диапазону дат
   const handleSearchRooms = () => {
     const filteredRooms = rooms.filter(room => room.capacity >= peopleCount);
     setAvailableRooms(filteredRooms);
@@ -48,14 +49,18 @@ const BookingPage = () => {
 
   return (
     <div style={containerStyle}>
-      {/* Фильтры для даты и количества людей */}
+      {/* Фильтры для диапазона дат и количества людей */}
       <div style={filterStyle}>
         <div style={filterItemStyle}>
-          <label>Выберите дату:</label>
+          <label>Выберите диапазон дат:</label>
           <DatePicker
             selected={startDate}
-            onChange={date => setStartDate(date)}
+            onChange={(dates) => setDateRange(dates)}
+            startDate={startDate}
+            endDate={endDate}
+            selectsRange
             dateFormat="dd/MM/yyyy"
+            placeholderText="Выберите диапазон дат"
           />
         </div>
         <div style={filterItemStyle}>
@@ -89,12 +94,12 @@ const BookingPage = () => {
 
 // Стили
 const containerStyle = {
-  padding: '20px',
+  padding: '130px',
 };
 
 const filterStyle = {
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
   gap: '10px',
   marginBottom: '20px',
 };
