@@ -1,26 +1,37 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const HeaderNavigation = () => {
-  const [activePage, setActivePage] = useState('home'); // состояние активной страницы
-  const [isHovered, setIsHovered] = useState(false); // состояние для hover-эффекта
+  const navigate = useNavigate();
+  const location = useLocation(); // Для отслеживания текущего пути
+  const [isHovered, setIsHovered] = useState(false); // Для hover-эффекта
 
-  const pages = ['Главная', 'Номерной фонд', 'Услуги', 'Мои бронирования', 'Личный кабинет'];
+  const pages = [
+    { name: 'Главная', path: '/' },
+    { name: 'Номерной фонд', path: '/categories' },
+    { name: 'Услуги', path: '/services' },  // Для других страниц, добавьте их пути
+    { name: 'Мои бронирования', path: '/bookings' },
+    { name: 'Личный кабинет', path: '/profile' }
+  ];
+
+  const handleNavigation = (path) => {
+    navigate(path); // Переход на нужный маршрут
+  };
 
   return (
     <nav style={navStyle}>
       {pages.map((page) => (
         <button
-          key={page}
+          key={page.name}
           style={{
             ...buttonStyle,
-            ...(activePage === page ? activeButtonStyle : {}),
+            ...(location.pathname === page.path ? activeButtonStyle : {}),
           }}
-          onClick={() => setActivePage(page)}
+          onClick={() => handleNavigation(page.path)} // Переход при клике
         >
-          {page}
+          {page.name}
         </button>
       ))}
-      {/* Кнопка Забронировать с hover-эффектом */}
       <button
         style={{
           ...bookButtonStyle,
@@ -40,21 +51,21 @@ const HeaderNavigation = () => {
 };
 
 const navStyle = {
-  position: 'absolute', 
-  top: '0', 
+  position: 'absolute',
+  top: '0',
   left: '0',
   width: '100%',
   display: 'flex',
   justifyContent: 'start',
   alignItems: 'center',
-  gap: '20px', // Уменьшение промежутка между кнопками
-  padding: '20px 0 0 20px', // Паддинг для предотвращения выхода за пределы
-  overflowX: 'hidden', // Отключение горизонтального скролла
-  boxSizing: 'border-box', // Включаем учет паддингов в ширину
+  gap: '20px',
+  padding: '20px 0 0 20px',
+  overflowX: 'hidden',
+  boxSizing: 'border-box',
 };
 
 const buttonStyle = {
-  padding: '10px 30px', // Уменьшены отступы для кнопок
+  padding: '10px 30px',
   fontSize: '20px',
   color: '#50464D',
   backgroundColor: 'transparent',
@@ -67,8 +78,8 @@ const buttonStyle = {
 const activeButtonStyle = {
   backgroundColor: '#50464D', // Цвет фона для активной страницы
   borderRadius: 33,
-  color: '#fff', // Цвет текста для активной страницы
-  padding: '10px 30px', // Уменьшены отступы для кнопок
+  color: '#fff',
+  padding: '10px 30px',
 };
 
 const bookButtonStyle = {
@@ -80,7 +91,7 @@ const bookButtonStyle = {
   borderRadius: 33,
   cursor: 'pointer',
   transition: 'background-color 0.3s ease',
-  marginLeft: '20px', // Отступ от предыдущих кнопок
+  marginLeft: '20px',
 };
 
 export default HeaderNavigation;
