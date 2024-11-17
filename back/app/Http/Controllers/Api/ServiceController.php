@@ -6,28 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
+
 class ServiceController extends Controller
 {
     public function index()
     {
-        return Service::all();
+        return Service::all(); // Возвращает список всех услуг
+    }
+
+    public function show($id)
+    {
+        return Service::findOrFail($id); // Возвращает конкретную услугу
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
         ]);
 
-        return Service::create($validated);
-    }
-
-    public function show($id)
-    {
-        $service = Service::findOrFail($id);
-        return $service;
+        $service = Service::create($validated);
+        return response()->json($service, 201);
     }
 
     public function update(Request $request, $id)
@@ -35,19 +35,18 @@ class ServiceController extends Controller
         $service = Service::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'sometimes|string',
-            'description' => 'sometimes|string',
-            'price' => 'sometimes|numeric',
+            'name' => 'string|max:255',
+            'price' => 'numeric|min:0',
         ]);
 
         $service->update($validated);
-        return $service;
+        return response()->json($service, 200);
     }
 
     public function destroy($id)
     {
         $service = Service::findOrFail($id);
         $service->delete();
-        return response()->noContent();
+        return response()->json(null, 204);
     }
 }

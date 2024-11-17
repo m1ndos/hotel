@@ -23,9 +23,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'full_name' => 'required|string',
-            'phone_number' => 'nullable|string',
+            'password' => 'required|min:3',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -51,8 +49,6 @@ class UserController extends Controller
         $validated = $request->validate([
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
             'password' => 'sometimes|min:6',
-            'full_name' => 'sometimes|string',
-            'phone_number' => 'sometimes|string',
         ]);
 
         if (isset($validated['password'])) {

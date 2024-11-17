@@ -10,17 +10,25 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'room_number',       // Номер комнаты
-        'type',              // Тип комнаты (например, люкс, стандарт, одноместный)
-        'description',       // Описание номера
-        'price_per_night',   // Цена за ночь
-        'is_available',      // Доступен ли номер (булевый тип)
-        'capacity',          // Вместимость (количество человек)
+        'name',             // Название комнаты
+        'address',          // Адрес комнаты
+        'category_id',      // ID категории
+        'description',      // Описание комнаты
     ];
 
-    // Связь с бронированиями
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->hasMany(Booking::class, 'room_id');
+    }
+
+    public function features()
+    {
+        return $this->belongsToMany(Feature::class, 'room_feature')->withTimestamps();
     }
 }
+
