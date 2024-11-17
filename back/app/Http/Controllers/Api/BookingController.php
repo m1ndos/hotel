@@ -5,49 +5,37 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Room;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
     public function index()
     {
-        return Booking::with(['user', 'room', 'services'])->get();
+        return Booking::with(['client', 'room'])->get();
+    }
+
+    public function show($id)
+    {
+        return Booking::with(['client', 'room.features'])->findOrFail($id);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'client_id' => 'required|exists:clients,id',
             'room_id' => 'required|exists:rooms,id',
-            'check_in_date' => 'required|date',
-            'check_out_date' => 'required|date|after:check_in_date',
-            'total_price' => 'required|numeric',
-            'services' => 'nullable|array',
+            'day_in' => 'required|date',
+            'day_out' => 'required|date|after:day_in',
+            'services' => 'nullable|array', // Массив ID услуг (опционально)
             'services.*' => 'exists:services,id',
         ]);
 
-        // Проверка, что комната доступна
-        $room = Room::findOrFail($validated['room_id']);
-        if (!$room->is_available) {
-            return response()->json(['error' => 'The selected room is not available.'], 422);
-        }
+        $services = $validated['services'] ?? [];
+        $validated['services'] = $this->getServicesDump($services);
 
-        $validated['status'] = 'pending_payment';
         $booking = Booking::create($validated);
-
-        // Привязываем услуги, если указаны
-        if (!empty($validated['services'])) {
-            $booking->services()->attach($validated['services']);
-        }
-        $room->update(['is_available' => false]);
-
-        return response()->json($booking->load(['user', 'room', 'services']), 201);
-    }
-
-    public function show($id)
-    {
-        $booking = Booking::with(['user', 'room', 'services'])->findOrFail($id);
-        return $booking;
+        return response()->json($booking, 201);
     }
 
     public function update(Request $request, $id)
@@ -55,22 +43,42 @@ class BookingController extends Controller
         $booking = Booking::findOrFail($id);
 
         $validated = $request->validate([
-            'user_id' => 'sometimes|exists:users,id',
-            'room_id' => 'sometimes|exists:rooms,id',
-            'check_in_date' => 'sometimes|date',
-            'check_out_date' => 'sometimes|date|after:check_in_date',
-            'total_price' => 'sometimes|numeric',
-            'status' => 'sometimes|string',
+            'client_id' => 'exists:clients,id',
+            'room_id' => 'exists:rooms,id',
+            'day_in' => 'date',
+            'day_out' => 'date|after:day_in',
+            'services' => 'nullable|array', // Массив ID услуг (опционально)
+            'services.*' => 'exists:services,id',
         ]);
 
-        $booking->update(array_filter($validated)); // Фильтруем пустые значения
-        return $booking->load(['user', 'room', 'services']);
+        $services = $validated['services'] ?? [];
+        $validated['services'] = $this->getServicesDump($services);
+
+        $booking->update($validated);
+        return response()->json($booking, 200);
     }
 
     public function destroy($id)
     {
         $booking = Booking::findOrFail($id);
         $booking->delete();
-        return response()->noContent();
+        return response()->json(null, 204);
+    }
+
+    private function getServicesDump(array $serviceIds)
+    {
+        if (empty($serviceIds)) {
+            return null;
+        }
+
+        $services = Service::whereIn('id', $serviceIds)->get();
+        $servicesData = $services->map(function ($service) {
+            return [
+                'name' => $service->name,
+                'price' => $service->price,
+            ];
+        });
+
+        return $servicesData->toJson();
     }
 }

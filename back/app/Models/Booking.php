@@ -5,34 +5,31 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use MongoDB\Laravel\Eloquent\Model;
 
+
 class Booking extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'user_id',         // ID пользователя (связь с User)
-        'room_id',         // ID номера (связь с Room)
-        'check_in_date',   // Дата заезда
-        'check_out_date',  // Дата выезда
-        'total_price',     // Общая стоимость проживания
-        'status',          // Статус бронирования (например, активное или отменено)
+        'client_id',     // ID клиента
+        'room_id',       // ID номера
+        'day_in',        // Дата заезда
+        'day_out',       // Дата выезда
+        'services'
     ];
 
-    // Связь с пользователем
-    public function user()
+    protected $casts = [
+        'services' => 'array', // Делаем поле services массивом
+    ];
+
+    public function client()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
-    // Связь с номером
     public function room()
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
-    // Связь с услугами (многие ко многим)
-    public function services()
-    {
-        return $this->belongsToMany(Service::class, 'booking_service')->withTimestamps();
-    }
 }

@@ -10,14 +10,13 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',            // Название услуги
-        'description',     // Описание услуги
-        'price',           // Стоимость услуги
+        'name',        // Название услуги
+        'price',       // Цена услуги
     ];
 
-    // Связь с бронированиями (многие ко многим)
-    public function bookings()
+    public function orders()
     {
-        return $this->belongsToMany(Booking::class, 'booking_service')->withTimestamps();
+        return $this->belongsToMany(Order::class, 'order_service')->withTimestamps();
     }
 }
+
