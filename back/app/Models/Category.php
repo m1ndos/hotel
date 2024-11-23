@@ -21,4 +21,8 @@ class Category extends Model
     {
         return $this->hasMany(Room::class, 'category_id');
     }
+    public function features()
+    {
+        return $this->belongsToMany(Feature::class, 'category_feature')->withTimestamps();
+    }
 }

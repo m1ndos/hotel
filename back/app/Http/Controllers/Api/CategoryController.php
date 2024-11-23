@@ -11,12 +11,12 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::all(); // Возвращает список всех категорий
+        return Category::with('features')->get(); // Возвращает категории с фичами
     }
 
     public function show($id)
     {
-        return Category::findOrFail($id); // Возвращает конкретную категорию
+        return Category::with('features')->findOrFail($id); // Возвращает конкретную категорию с фичами
     }
 
     public function store(Request $request)
@@ -27,9 +27,17 @@ class CategoryController extends Controller
             'people_quantity' => 'required|integer|min:1',
             'image' => 'nullable|string',
             'description' => 'nullable|string',
+            'features' => 'nullable|array', // Массив ID фич
+            'features.*' => 'exists:features,id',
         ]);
 
         $category = Category::create($validated);
+
+        // Если переданы фичи, привязываем их
+        if (isset($validated['features'])) {
+            $category->features()->sync($validated['features']);
+        }
+
         return response()->json($category, 201);
     }
 
@@ -38,14 +46,22 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'string|max:255',
-            'price' => 'numeric|min:0',
-            'people_quantity' => 'required|integer|min:1',
+            'name' => 'nullable|string|max:255',
+            'price' => 'nullable|numeric|min:0',
+            'people_quantity' => 'nullable|integer|min:1',
             'image' => 'nullable|string',
             'description' => 'nullable|string',
+            'features' => 'nullable|array', // Массив ID фич
+            'features.*' => 'exists:features,id',
         ]);
 
         $category->update($validated);
+
+        // Если переданы фичи, синхронизируем их
+        if (isset($validated['features'])) {
+            $category->features()->sync($validated['features']);
+        }
+
         return response()->json($category, 200);
     }
 
