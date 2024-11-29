@@ -10,11 +10,13 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',             // Название комнаты
-        'address',          // Адрес комнаты
-        'category_id',      // ID категории
-        'description',      // Описание комнаты
+        'name',
+        'address',
+        'category_id',
+        'description',
+        'images', // Добавлено новое поле
     ];
+    
 
     public function category()
     {

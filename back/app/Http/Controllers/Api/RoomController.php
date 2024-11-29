@@ -20,49 +20,52 @@ class RoomController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
-            'features' => 'nullable|array', // Массив ID фич
-            'features.*' => 'exists:features,id',
-        ]);
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'address' => 'required|string|max:255',
+        'category_id' => 'required|exists:categories,id',
+        'description' => 'nullable|string',
+        'features' => 'nullable|array', // Массив ID фич
+        'features.*' => 'exists:features,id',
+        'images' => 'nullable|array|max:3', // Массив из максимум 3 картинок
+        'images.*' => 'url', // Каждая картинка должна быть валидным URL
+    ]);
 
-        $room = Room::create($validated);
+    $room = Room::create($validated);
 
-        // Если есть фичи, привязываем их
-        if (isset($validated['features'])) {
-            $room->features()->sync($validated['features']); // Синхронизируем фичи
-        }
-
-        return response()->json($room, 201);
+    if (isset($validated['features'])) {
+        $room->features()->sync($validated['features']);
     }
 
-    public function update(Request $request, $id)
-    {
-        $room = Room::findOrFail($id);
+    return response()->json($room, 201);
+}
 
-        $validated = $request->validate([
-            'name' => 'string|max:255',
-            'address' => 'string|max:255',
-            'category_id' => 'exists:categories,id',
-            'description' => 'nullable|string',
-            'features' => 'nullable|array', // Массив ID фич
-            'features.*' => 'exists:features,id', // Проверка существования фичей
-        ]);
 
-        // Обновляем комнату
-        $room->update($validated);
+public function update(Request $request, $id)
+{
+    $room = Room::findOrFail($id);
 
-        // Если фичи переданы, синхронизируем их
-        if (isset($validated['features'])) {
-            $room->features()->sync($validated['features']); // Синхронизация фичей
-        }
+    $validated = $request->validate([
+        'name' => 'string|max:255',
+        'address' => 'string|max:255',
+        'category_id' => 'exists:categories,id',
+        'description' => 'nullable|string',
+        'features' => 'nullable|array',
+        'features.*' => 'exists:features,id',
+        'images' => 'nullable|array|max:3',
+        'images.*' => 'url',
+    ]);
 
-        return response()->json($room);
+    $room->update($validated);
+
+    if (isset($validated['features'])) {
+        $room->features()->sync($validated['features']);
     }
+
+    return response()->json($room);
+}
+
 
     public function destroy($id)
     {
