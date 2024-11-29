@@ -74,4 +74,14 @@ class RoomController extends Controller
         $room->delete();
         return response()->json(null, 204);
     }
+
+    public function getRoomsByCategoryName($categoryName)
+    {
+        $rooms = Room::whereHas('category', function ($query) use ($categoryName) {
+            $query->where('name', $categoryName);
+        })->with('category', 'features')->get();
+
+        return response()->json($rooms);
+    }
+
 }

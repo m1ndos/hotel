@@ -20,3 +20,5 @@ Route::apiResource('services', ServiceController::class);
 Route::apiResource('categories', CategoryController::class);
 Route::apiResource('features', FeatureController::class);
 Route::apiResource('orders', OrderController::class);
+Route::get('/rooms/category/{name}', [RoomController::class, 'getRoomsByCategoryName']);
+

@@ -28,10 +28,10 @@ const Categories = () => {
 
   // Функция для навигации на страницу категории
   const handleCategoryClick = (categoryName) => {
-    if (categoryName === "Стандарт") navigate('/category/standard');
-    else if (categoryName === "Улучшенный стандарт") navigate('/category/improved_standard');
-    else if (categoryName === "Люкс") navigate('/category/lux');
-    else if (categoryName === "Семейный") navigate('/category/family');
+    if (categoryName === "Стандарт") navigate('/category/Стандарт');
+    else if (categoryName === "Улучшенный стандарт") navigate('/category/Улучшенный стандарт');
+    else if (categoryName === "Люкс") navigate('/category/Люкс');
+    else if (categoryName === "Семейный") navigate('/category/Семейный');
   };
 
   return (
