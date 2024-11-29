@@ -14,15 +14,11 @@ class Category extends Model
         'price',
         'description',
         'image',
-        'people_quantity',
     ];
 
     public function rooms()
     {
         return $this->hasMany(Room::class, 'category_id');
     }
-    public function features()
-    {
-        return $this->belongsToMany(Feature::class, 'category_feature')->withTimestamps();
-    }
+    
 }

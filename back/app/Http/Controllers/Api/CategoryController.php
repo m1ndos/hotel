@@ -6,37 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 
-
 class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::with('features')->get(); // Возвращает категории с фичами
+        return Category::all(); // Возвращает все категории без фич
     }
 
     public function show($id)
     {
-        return Category::with('features')->findOrFail($id); // Возвращает конкретную категорию с фичами
+        return Category::findOrFail($id); // Возвращает конкретную категорию без фич
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'people_quantity' => 'required|integer|min:1',
+            'price' => 'required|string|min:0',
             'image' => 'nullable|string',
             'description' => 'nullable|string',
-            'features' => 'nullable|array', // Массив ID фич
-            'features.*' => 'exists:features,id',
         ]);
 
         $category = Category::create($validated);
-
-        // Если переданы фичи, привязываем их
-        if (isset($validated['features'])) {
-            $category->features()->sync($validated['features']);
-        }
 
         return response()->json($category, 201);
     }
@@ -47,20 +38,12 @@ class CategoryController extends Controller
 
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
-            'price' => 'nullable|numeric|min:0',
-            'people_quantity' => 'nullable|integer|min:1',
+            'price' => 'nullable|string|min:0',
             'image' => 'nullable|string',
             'description' => 'nullable|string',
-            'features' => 'nullable|array', // Массив ID фич
-            'features.*' => 'exists:features,id',
         ]);
 
         $category->update($validated);
-
-        // Если переданы фичи, синхронизируем их
-        if (isset($validated['features'])) {
-            $category->features()->sync($validated['features']);
-        }
 
         return response()->json($category, 200);
     }

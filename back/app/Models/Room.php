@@ -14,9 +14,10 @@ class Room extends Model
         'address',
         'category_id',
         'description',
-        'images', // Добавлено новое поле
+        'people_quantity', // Поле вместимости
+        'price', // Поле цены
+        'images',
     ];
-    
 
     public function category()
     {
@@ -33,4 +34,3 @@ class Room extends Model
         return $this->belongsToMany(Feature::class, 'room_feature')->withTimestamps();
     }
 }
-

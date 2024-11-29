@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Room;
 use Illuminate\Http\Request;
 
-
 class RoomController extends Controller
 {
     public function index()
@@ -20,52 +19,54 @@ class RoomController extends Controller
     }
 
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'address' => 'required|string|max:255',
-        'category_id' => 'required|exists:categories,id',
-        'description' => 'nullable|string',
-        'features' => 'nullable|array', // Массив ID фич
-        'features.*' => 'exists:features,id',
-        'images' => 'nullable|array|max:3', // Массив из максимум 3 картинок
-        'images.*' => 'url', // Каждая картинка должна быть валидным URL
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable|string',
+            'people_quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0', // Валидация для поля цены
+            'features' => 'nullable|array',
+            'features.*' => 'exists:features,id',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'url',
+        ]);
 
-    $room = Room::create($validated);
+        $room = Room::create($validated);
 
-    if (isset($validated['features'])) {
-        $room->features()->sync($validated['features']);
+        if (isset($validated['features'])) {
+            $room->features()->sync($validated['features']);
+        }
+
+        return response()->json($room, 201);
     }
 
-    return response()->json($room, 201);
-}
+    public function update(Request $request, $id)
+    {
+        $room = Room::findOrFail($id);
 
+        $validated = $request->validate([
+            'name' => 'string|max:255',
+            'address' => 'string|max:255',
+            'category_id' => 'exists:categories,id',
+            'description' => 'nullable|string',
+            'people_quantity' => 'nullable|integer|min:1',
+            'price' => 'nullable|numeric|min:0', // Валидация для поля цены
+            'features' => 'nullable|array',
+            'features.*' => 'exists:features,id',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'url',
+        ]);
 
-public function update(Request $request, $id)
-{
-    $room = Room::findOrFail($id);
+        $room->update($validated);
 
-    $validated = $request->validate([
-        'name' => 'string|max:255',
-        'address' => 'string|max:255',
-        'category_id' => 'exists:categories,id',
-        'description' => 'nullable|string',
-        'features' => 'nullable|array',
-        'features.*' => 'exists:features,id',
-        'images' => 'nullable|array|max:3',
-        'images.*' => 'url',
-    ]);
+        if (isset($validated['features'])) {
+            $room->features()->sync($validated['features']);
+        }
 
-    $room->update($validated);
-
-    if (isset($validated['features'])) {
-        $room->features()->sync($validated['features']);
+        return response()->json($room);
     }
-
-    return response()->json($room);
-}
-
 
     public function destroy($id)
     {

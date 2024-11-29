@@ -53,12 +53,8 @@ const Categories = () => {
               <div style={descriptionStyle}>
                 {category.description}
               </div>
-              <div style={featuresStyle}>
-                <ul>
-                  {category.features.map((feature, idx) => (
-                    <li key={idx}>{feature.name}</li> // Используем feature.name для отображения названия особенности
-                  ))}
-                </ul>
+              <div style={priceStyle}>
+                {category.price} {/* Добавлено отображение цены */}
               </div>
             </div>
             <div style={imageStyle}>
@@ -84,7 +80,7 @@ const mainStyle = {
 const categoryStyle = {
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'flex-start', 
+  alignItems: 'flex-start',
   marginBottom: '40px',
   backgroundColor: '#fff',
   padding: '20px',
@@ -111,10 +107,11 @@ const descriptionStyle = {
   marginBottom: '20px',
 };
 
-const featuresStyle = {
-  fontSize: '20px',
-  color: '#777',
-  paddingLeft: '0px',
+const priceStyle = {
+  fontSize: '24px',
+  fontWeight: 'bold',
+  color: '#333',
+  marginBottom: '20px',
 };
 
 const imageStyle = {

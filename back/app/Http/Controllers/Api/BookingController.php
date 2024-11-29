@@ -34,7 +34,9 @@ class BookingController extends Controller
         $services = $validated['services'] ?? [];
         $validated['services'] = $this->getServicesDump($services);
 
-        $booking = Booking::create($validated);
+$booking = Booking::create($validated);
+
+
         return response()->json($booking, 201);
     }
 
