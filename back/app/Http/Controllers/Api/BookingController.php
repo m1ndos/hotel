@@ -31,12 +31,16 @@ class BookingController extends Controller
             'services.*' => 'exists:services,id',
         ]);
 
+        $room = Room::findOrFail($validated['room_id']);
+        if (!$room->is_available) {
+            return response()->json(['error' => 'Room is currently unavailable'], 400);
+        }
+
         $services = $validated['services'] ?? [];
         $validated['services'] = $this->getServicesDump($services);
+        $booking = Booking::create($validated);
 
-$booking = Booking::create($validated);
-
-
+        $room->update(['is_available' => false]);
         return response()->json($booking, 201);
     }
 
@@ -64,6 +68,7 @@ $booking = Booking::create($validated);
     {
         $booking = Booking::findOrFail($id);
         $booking->delete();
+        $booking->room->update(['is_available' => true]);
         return response()->json(null, 204);
     }
 
