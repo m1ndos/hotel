@@ -9,9 +9,9 @@ const HeaderNavigation = () => {
   const pages = [
     { name: 'Главная', path: '/' },
     { name: 'Номерной фонд', path: '/categories' },
-    { name: 'Услуги', path: '/services' },  // Для других страниц, добавьте их пути
-    { name: 'Мои бронирования', path: '/bookings' },
-    { name: 'Личный кабинет', path: '/profile' },
+    // { name: 'Услуги', path: '/services' },  // todo: реализовать
+    // { name: 'Мои бронирования', path: '/bookings' }, //todo: реализовать
+    // { name: 'Личный кабинет', path: '/profile' }, todo: реализовать
   ];
 
   const handleNavigation = (path) => {
