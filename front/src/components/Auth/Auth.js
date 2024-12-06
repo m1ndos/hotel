@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import auth_icon from '../../images/auth_icon.svg';
+import AuthTab from "./AuthTab";
+import RegisterTab from "./RegisterTab";
+import {useNavigate} from "react-router-dom";
 
-const Auth = () => {
-  // Состояние для выбора между входом и регистрацией
+const Auth = ({setIsAuthenticated}) => {
   const [isLogin, setIsLogin] = useState(true);
+  const navigate = useNavigate()
 
-  // Обработчик переключения форм
-  const toggleForm = () => {
-    setIsLogin(!isLogin);
-  };
+  const handleSuccessAuth = (data) => {
+    localStorage.setItem('userInfo', JSON.stringify(data));
+    setIsAuthenticated(true);
+    navigate('/');
+  }
 
   return (
     <div style={styles.container}>
@@ -28,27 +32,15 @@ const Auth = () => {
       </div>
       <div style={styles.formContainer}>
         <div style={styles.imgContainer}>
-          <img style={styles.img} src={auth_icon} alt="auth_icon" />
+          <img style={styles.img} src={auth_icon} alt="auth_icon"/>
         </div>
-        <form style={styles.form}>
-          {isLogin ? (
-            // Форма для входа
-            <>
-              <input style={styles.input} type="text" placeholder="Введите ваш логин" />
-              <input style={styles.input} type="password" placeholder="Введите ваш пароль" />
-              <button style={styles.submitButton}>Войти</button>
-            </>
-          ) : (
-            // Форма для регистрации
-            <>
-              <input style={styles.input} type="text" placeholder="Введите ваше имя" />
-              <input style={styles.input} type="email" placeholder="Введите ваш email" />
-              <input style={styles.input} type="password" placeholder="Введите ваш пароль" />
-              <input style={styles.input} type="password" placeholder="Подтвердите ваш пароль" />
-              <button style={styles.submitButton}>Зарегистрироваться</button>
-            </>
-          )}
-        </form>
+        <div style={styles.form}>
+          {isLogin ?
+            <AuthTab handleSuccessAuth={handleSuccessAuth}/>
+            :
+            <RegisterTab handleSuccessAuth={handleSuccessAuth}/>
+          }
+        </div>
       </div>
     </div>
   );
