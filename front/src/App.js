@@ -1,5 +1,5 @@
-import React from 'react'
-import { Routes, Route, BrowserRouter } from 'react-router-dom';
+import React, {useState} from 'react'
+import {Routes, Route, BrowserRouter} from 'react-router-dom';
 import HeaderGround from './components/Header/HeaderGround';
 import HeaderNavigation from './components/Header/HeaderNavigation';
 import Main from './components/Main/Main';
@@ -12,17 +12,19 @@ import "slick-carousel/slick/slick.css"; // Импорт стилей slick
 import "slick-carousel/slick/slick-theme.css"; // Импорт темы slick
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
     <BrowserRouter>
       <div style={styles.app}>
         <HeaderGround/>
-        <HeaderNavigation/>
+        <HeaderNavigation isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>
         <Routes>
-          <Route path="/" element={<Main />}/>
-          <Route path="/auth" element={<Auth />}/>
-          <Route path="/categories" element={<Categories />}/>
-          <Route path="/booking" element={<BookingPage />}/>
-          <Route path="/category/:name" element={<Category/>} />
+          <Route path="/" element={<Main/>}/>
+          <Route path="/auth" element={<Auth setIsAuthenticated={setIsAuthenticated}/>}/>
+          <Route path="/categories" element={<Categories/>}/>
+          <Route path="/booking" element={<BookingPage/>}/>
+          <Route path="/category/:name" element={<Category/>}/>
         </Routes>
         <Footer></Footer>
       </div>

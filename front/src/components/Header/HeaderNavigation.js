@@ -1,51 +1,82 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, {useState} from 'react';
+import {useNavigate, useLocation} from 'react-router-dom';
+import './Header.css'
 
-const HeaderNavigation = () => {
+const HeaderNavigation = ({isAuthenticated, setIsAuthenticated}) => {
   const navigate = useNavigate();
   const location = useLocation(); // Для отслеживания текущего пути
   const [isHovered, setIsHovered] = useState(false); // Для hover-эффекта
 
   const pages = [
-    { name: 'Главная', path: '/' },
-    { name: 'Номерной фонд', path: '/categories' },
-    // { name: 'Услуги', path: '/services' },  // todo: реализовать
-    // { name: 'Мои бронирования', path: '/bookings' }, //todo: реализовать
-    // { name: 'Личный кабинет', path: '/profile' }, todo: реализовать
+    {name: 'Услуги', path: '/services'},  // todo: реализовать
+    {name: 'Мои бронирования', path: '/bookings'}, //todo: реализовать
+    {name: 'Личный кабинет', path: '/profile'}, // todo: реализовать
   ];
 
   const handleNavigation = (path) => {
     navigate(path); // Переход на нужный маршрут
   };
-  const handleNavigationBooking = () => {
-    navigate('/booking'); // Переход на нужный маршрут
-  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userInfo')
+    setIsAuthenticated(false)
+  }
 
   return (
     <nav style={navStyle}>
-      {pages.map((page) => (
-        <button
-          key={page.name}
-          style={{
-            ...buttonStyle,
-            ...(location.pathname === page.path ? activeButtonStyle : {}),
-          }}
-          onClick={() => handleNavigation(page.path)} // Переход при клике
-        >
-          {page.name}
-        </button>
-      ))}
+      <button
+        style={{
+          ...buttonStyle,
+          ...(location.pathname === '/' ? activeButtonStyle : {}),
+        }}
+        onClick={() => handleNavigation('/')}
+      >
+        Главная
+      </button>
+
+      <button
+        style={{
+          ...buttonStyle,
+          ...(location.pathname === '/categories' ? activeButtonStyle : {}),
+        }}
+        onClick={() => handleNavigation('/categories')}
+      >
+        Номерной фонд
+      </button>
+
       <button
         style={{
           ...bookButtonStyle,
           backgroundColor: isHovered ? '#50464D' : '#fff', // Изменяем цвет фона при наведении
         }}
-        onClick={() => handleNavigationBooking()} // Переход при клике
+        onClick={() => handleNavigation('/booking')} // Переход при клике
         onMouseEnter={() => setIsHovered(true)} // При наведении
         onMouseLeave={() => setIsHovered(false)} // При уходе курсора
       >
         Забронировать
       </button>
+
+      {isAuthenticated ?
+        <button
+          className="auth_btn"
+          onClick={handleLogout}
+        >
+          Выйти
+        </button>
+        :
+        <button
+          className="auth_btn"
+          style={{
+            ...(location.pathname === '/auth' ? activeButtonStyle : {}),
+          }}
+          onClick={() => {
+            handleNavigation('/auth')
+          }}
+        >
+          Войти
+        </button>
+      }
+
     </nav>
   );
 };
