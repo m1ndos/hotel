@@ -17,6 +17,7 @@ class Room extends Model
         'people_quantity', // Поле вместимости
         'price', // Поле цены
         'images',
+        'is_available',
     ];
 
     public function category()

@@ -33,6 +33,7 @@ class RoomController extends Controller
             'images.*' => 'url',
         ]);
 
+        $validated['is_available'] = true;
         $room = Room::create($validated);
 
         if (isset($validated['features'])) {
