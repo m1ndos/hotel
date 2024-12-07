@@ -118,6 +118,18 @@ const Category = () => {
     ));
   };
 
+  const renderRoomDetails = (room) => {
+    return (
+      <div style={roomDetailsStyle}>
+        <p><strong>Номер:</strong> {room.address}</p>
+        <p><strong>Цена:</strong> {room.price} ₽</p>
+        <p><strong>Количество людей:</strong> {room.people_quantity}</p>
+        <p><strong>Доступность:</strong> {room.is_available ? 'Доступна' : 'Недоступна'}</p>
+      </div>
+    );
+  };
+
+
   return (
     <div style={mainContainerStyle}>
       <h1 style={headerStyle}>Комнаты категории: {name}</h1>
@@ -156,6 +168,8 @@ const Category = () => {
               <h3 style={detailsHeaderStyle}>Детали</h3>
               {renderFeatures(rooms[currentRoomIndex].features)}
             </div>
+
+            {renderRoomDetails(rooms[currentRoomIndex])}
           </div>
         </div>
       ) : (
@@ -255,6 +269,13 @@ const featuresContainerStyle = {
 const featureStyle = {
   fontSize: '16px',
   marginBottom: '10px',
+};
+
+const roomDetailsStyle = {
+  marginTop: '20px',
+  fontSize: '16px',
+  color: '#333',
+  padding: '0 20px',
 };
 
 export default Category;
