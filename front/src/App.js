@@ -10,7 +10,8 @@ import BookingPage from './components/BookingPage/BookingPage';
 import Category from './components/Category/Category'
 import "slick-carousel/slick/slick.css"; // Импорт стилей slick
 import "slick-carousel/slick/slick-theme.css";
-import Services from "./components/Services/Services"; // Импорт темы slick
+import Services from "./components/Services/Services";
+import MyBookings from "./components/MyBookings/MyBookings"; // Импорт темы slick
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,6 +26,7 @@ function App() {
           <Route path="/auth" element={<Auth setIsAuthenticated={setIsAuthenticated}/>}/>
           <Route path="/categories" element={<Categories/>}/>
           <Route path="/services" element={<Services/>}/>
+          <Route path="/bookings" element={<MyBookings/>}/>
           <Route path="/booking" element={<BookingPage/>}/>
           <Route path="/category/:name" element={<Category/>}/>
         </Routes>

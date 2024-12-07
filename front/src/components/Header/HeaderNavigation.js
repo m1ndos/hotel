@@ -55,6 +55,16 @@ const HeaderNavigation = ({isAuthenticated, setIsAuthenticated}) => {
 
       <button
         style={{
+          ...buttonStyle,
+          ...(location.pathname === '/bookings' ? activeButtonStyle : {}),
+        }}
+        onClick={() => handleNavigation('/bookings')}
+      >
+        Мои бронирования
+      </button>
+
+      <button
+        style={{
           ...bookButtonStyle,
           backgroundColor: isHovered ? '#50464D' : '#fff', // Изменяем цвет фона при наведении
         }}

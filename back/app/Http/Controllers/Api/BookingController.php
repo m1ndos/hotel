@@ -12,7 +12,7 @@ class BookingController extends Controller
 {
     public function index()
     {
-        return Booking::with(['client', 'room'])->get();
+        return Booking::with(['client', 'room.category', 'room.features'])->get();
     }
 
     public function show($id)
