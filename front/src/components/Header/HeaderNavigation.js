@@ -7,11 +7,6 @@ const HeaderNavigation = ({isAuthenticated, setIsAuthenticated}) => {
   const location = useLocation(); // Для отслеживания текущего пути
   const [isHovered, setIsHovered] = useState(false); // Для hover-эффекта
 
-  const pages = [
-    {name: 'Мои бронирования', path: '/bookings'}, //todo: реализовать
-    {name: 'Личный кабинет', path: '/profile'}, // todo: реализовать
-  ];
-
   const handleNavigation = (path) => {
     navigate(path); // Переход на нужный маршрут
   };
@@ -40,7 +35,7 @@ const HeaderNavigation = ({isAuthenticated, setIsAuthenticated}) => {
         }}
         onClick={() => handleNavigation('/categories')}
       >
-        Номерной фонд
+        Категории
       </button>
 
       <button

@@ -14,7 +14,7 @@ import Services from "./components/Services/Services";
 import MyBookings from "./components/MyBookings/MyBookings"; // Импорт темы slick
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('userInfo'));
 
   return (
     <BrowserRouter>
@@ -28,7 +28,7 @@ function App() {
           <Route path="/services" element={<Services/>}/>
           <Route path="/bookings" element={<MyBookings/>}/>
           <Route path="/booking" element={<BookingPage/>}/>
-          <Route path="/category/:name" element={<Category/>}/>
+          <Route path="/category/:id" element={<Category/>}/>
         </Routes>
         <Footer></Footer>
       </div>

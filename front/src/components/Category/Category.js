@@ -1,176 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import Slider from 'react-slick';
-
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-
-// Компонент для стрелки влево
-const PrevArrow = (props) => {
-  const { onClick } = props;
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '10px',
-        zIndex: 999,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        color: 'white',
-        fontSize: '30px',
-        padding: '10px',
-        borderRadius: '50%',
-        cursor: 'pointer',
-        transform: 'translateY(-50%)',
-      }}
-      onClick={onClick}
-    >
-      ←
-    </div>
-  );
-};
-
-// Компонент для стрелки вправо
-const NextArrow = (props) => {
-  const { onClick } = props;
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '50%',
-        right: '10px',
-        zIndex: 999,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        color: 'white',
-        fontSize: '30px',
-        padding: '10px',
-        borderRadius: '50%',
-        cursor: 'pointer',
-        transform: 'translateY(-50%)',
-      }}
-      onClick={onClick}
-    >
-      →
-    </div>
-  );
-};
+import React, {useEffect, useState} from 'react';
+import {useParams} from 'react-router-dom';
+import RoomCard from "../RoomCard/RoomCard";
 
 const Category = () => {
-  const { name } = useParams(); // Получаем параметр категории из URL
-  const [rooms, setRooms] = useState([]); // Состояние для хранения списка комнат
-  const [currentRoomIndex, setCurrentRoomIndex] = useState(0); // Индекс текущей комнаты
+  const {id} = useParams();
+  const [rooms, setRooms] = useState([]);
+  const [category, setCategory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Для ошибок (например, категория не найдена)
 
   useEffect(() => {
-    // Запрос на получение комнат по категории
-    const fetchRoomsByCategory = () => {
-      fetch(`http://localhost:8000/api/rooms/category/${name}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Ошибка при загрузке комнат');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setRooms(data); // 
-          console.log(data);
-          
-        })
-        .catch((error) => {
-          console.error('Ошибка:', error); // Логируем ошибку в консоль
-        });
-    };
+    fetchData();
+  }, [id]);
 
-    fetchRoomsByCategory();
-  }, [name]); // Эффект зависит от изменения параметра name
-
-  // Настройки для слайдера с комнатами
-  const roomSliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: false, // Убираем автопрокрутку
-    initialSlide: 0, // Начинаем с первого слайда
-    nextArrow: <NextArrow />, // Кастомная стрелка вправо
-    prevArrow: <PrevArrow />, // Кастомная стрелка влево
-    afterChange: (index) => setCurrentRoomIndex(index), // Обновляем индекс текущей комнаты
+  const fetchData = async () => {
+    try {
+      await fetchCategory();
+      await fetchRoomsByCategory();
+    } catch (err) {
+      setError('Ошибка загрузки данных. Попробуйте позже.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Настройки для слайдера с изображениями
-  const imageSliderSettings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: false, // Убираем автопрокрутку
-    nextArrow: <NextArrow />, // Кастомная стрелка вправо для изображений
-    prevArrow: <PrevArrow />, // Кастомная стрелка влево для изображений
+  // Функция для получения данных категории
+  const fetchCategory = async () => {
+    const response = await fetch(`http://localhost:8000/api/categories/${id}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        setError('Категория не найдена');
+      } else {
+        throw new Error('Ошибка при получении категории');
+      }
+    } else {
+      const data = await response.json();
+      setCategory(data);
+    }
   };
 
-  // Функция для вывода характеристик комнаты
-  const renderFeatures = (features) => {
-    return features.map((feature, index) => (
-      <div key={index} style={featureStyle}>
-        <strong>• {feature.name}</strong>
-      </div>
-    ));
+  // Функция для получения комнат
+  const fetchRoomsByCategory = async () => {
+    const response = await fetch(`http://localhost:8000/api/rooms/`);
+    const data = await response.json();
+    const filteredRooms = data.filter((room) => room.category_id === id);
+    setRooms(filteredRooms);
   };
 
-  const renderRoomDetails = (room) => {
-    return (
-      <div style={roomDetailsStyle}>
-        <p><strong>Номер:</strong> {room.address}</p>
-        <p><strong>Цена:</strong> {room.price} ₽</p>
-        <p><strong>Количество людей:</strong> {room.people_quantity}</p>
-        <p><strong>Доступность:</strong> {room.is_available ? 'Доступна' : 'Недоступна'}</p>
-      </div>
-    );
-  };
+  if (loading) {
+    return <p>Загрузка данных...</p>;
+  }
 
+  if (error) {
+    return <p>{error}</p>;
+  }
+
+  if (!category) {
+    return <p>Категория не найдена</p>;
+  }
 
   return (
     <div style={mainContainerStyle}>
-      <h1 style={headerStyle}>Комнаты категории: {name}</h1>
+      <h1 style={headerStyle}>Комнаты категории: {category.name}</h1>
       {rooms.length > 0 ? (
-        <div style={sliderContainerStyle}>
-          {/* Слайдер с названиями комнат */}
-          <Slider {...roomSliderSettings}>
-            {rooms.map((room, index) => (
-              <div key={room.id} style={slideStyle}>
-                <h2 style={roomNameStyle}>{room.name}</h2>
-              </div>
-            ))}
-          </Slider>
-
-          {/* Слайдер с изображениями для текущей комнаты */}
-          <div style={{ marginTop: '30px' }}>
-            {rooms[currentRoomIndex].images && rooms[currentRoomIndex].images.length > 0 ? (
-              <Slider {...imageSliderSettings}>
-                {rooms[currentRoomIndex].images.map((image, index) => (
-                  <div key={index} style={imageSlideStyle}>
-                    <img src={image} alt={`Room ${currentRoomIndex + 1}`} style={imageStyle} />
-                  </div>
-                ))}
-              </Slider>
-            ) : (
-              <p>Нет изображений для этой комнаты.</p>
-            )}
-
-            {/* Описание комнаты */}
-            {rooms[currentRoomIndex].description && (
-              <p style={descriptionStyle}>{rooms[currentRoomIndex].description}</p>
-            )}
-
-            {/* Характеристики комнаты */}
-            <div style={featuresContainerStyle}>
-              <h3 style={detailsHeaderStyle}>Детали</h3>
-              {renderFeatures(rooms[currentRoomIndex].features)}
-            </div>
-
-            {renderRoomDetails(rooms[currentRoomIndex])}
-          </div>
+        <div style={roomCardsContainerStyle}>
+          {rooms.map((room) => (
+            <RoomCard key={room.id} room={room}/>
+          ))}
         </div>
       ) : (
         <p>Нет доступных комнат в этой категории.</p>
@@ -195,87 +91,12 @@ const headerStyle = {
   color: '#333',
 };
 
-// Стили для контейнера слайдера
-const sliderContainerStyle = {
-  width: '60%',
-  margin: '0 auto',
-  backgroundColor: '#fff',
-  borderRadius: '8px',
-  overflow: 'hidden',
-  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-};
-
-// Стили для слайдера
-const slideStyle = {
+// Стили для контейнера карточек комнат
+const roomCardsContainerStyle = {
   display: 'flex',
+  flexWrap: 'wrap',
+  gap: '20px',
   justifyContent: 'center',
-  alignItems: 'center',
-  position: 'relative',
-};
-
-// Стили для названия комнаты
-const roomNameStyle = {
-  fontSize: '24px',
-  fontWeight: 'bold',
-  textAlign: 'center',
-  color: '#333',
-};
-
-// Стили для слайдера изображений
-const imageSlideStyle = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-};
-
-// Стили для изображения
-const imageStyle = {
-  width: '100%', // Ширина изображения займет всю ширину контейнера
-  height: '300px', // Фиксированная высота для всех изображений
-  objectFit: 'contain', // Масштабирует изображение с сохранением пропорций без обрезки
-  borderRadius: '8px', // Закругленные углы
-  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', // Тень для изображения
-  userSelect: 'none', // Запрещает выделение текста и изображения
-  outline: 'none', // Убирает обводку при фокусе
-  WebkitUserSelect: 'none', // Для Safari, чтобы избежать выделения
-};
-
-// Стили для описания комнаты
-const descriptionStyle = {
-  marginTop: '20px',
-  fontSize: '16px',
-  color: '#666',
-  textAlign: 'center',
-  padding: '0 20px',
-};
-
-// Стили для заголовка секции деталей
-const detailsHeaderStyle = {
-  fontSize: '20px',
-  fontWeight: 'bold',
-  marginTop: '30px',
-  textAlign: 'center',
-  color: '#333',
-};
-
-// Стили для контейнера характеристик
-const featuresContainerStyle = {
-  marginTop: '20px',
-  padding: '0 20px',
-  color: '#666',
-};
-
-// Стили для отдельных характеристик
-const featureStyle = {
-  fontSize: '16px',
-  marginBottom: '10px',
-};
-
-const roomDetailsStyle = {
-  marginTop: '20px',
-  fontSize: '16px',
-  color: '#333',
-  padding: '0 20px',
 };
 
 export default Category;

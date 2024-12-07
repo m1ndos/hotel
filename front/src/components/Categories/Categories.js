@@ -27,11 +27,8 @@ const Categories = () => {
   }, []);
 
   // Функция для навигации на страницу категории
-  const handleCategoryClick = (categoryName) => {
-    if (categoryName === "Стандарт") navigate('/category/Стандарт');
-    else if (categoryName === "Улучшенный стандарт") navigate('/category/Улучшенный стандарт');
-    else if (categoryName === "Люкс") navigate('/category/Люкс');
-    else if (categoryName === "Семейный") navigate('/category/Семейный');
+  const handleCategoryClick = (categoryId) => {
+    navigate(`/category/${categoryId}`)
   };
 
   return (
@@ -44,7 +41,7 @@ const Categories = () => {
               ...categoryStyle,
               flexDirection: index % 2 === 0 ? 'row' : 'row-reverse', // Чередование
             }}
-            onClick={() => handleCategoryClick(category.name)} // При клике на карточку
+            onClick={() => handleCategoryClick(category.id)}
           >
             <div style={descriptionContainerStyle}>
               <div style={nameCategoryStyle}>
@@ -54,7 +51,7 @@ const Categories = () => {
                 {category.description}
               </div>
               <div style={priceStyle}>
-                {category.price} {/* Добавлено отображение цены */}
+                {category.price}
               </div>
             </div>
             <div style={imageStyle}>
