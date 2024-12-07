@@ -11,7 +11,8 @@ import Category from './components/Category/Category'
 import "slick-carousel/slick/slick.css"; // Импорт стилей slick
 import "slick-carousel/slick/slick-theme.css";
 import Services from "./components/Services/Services";
-import MyBookings from "./components/MyBookings/MyBookings"; // Импорт темы slick
+import MyBookings from "./components/MyBookings/MyBookings";
+import RoomDetails from "./components/RoomDetails/RoomDetails"; // Импорт темы slick
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('userInfo'));
@@ -29,8 +30,9 @@ function App() {
           <Route path="/bookings" element={<MyBookings/>}/>
           <Route path="/booking" element={<BookingPage/>}/>
           <Route path="/category/:id" element={<Category/>}/>
+          <Route path="/room/:roomId" element={<RoomDetails/>}/>
         </Routes>
-        <Footer></Footer>
+        <Footer/>
       </div>
     </BrowserRouter>
   );
