@@ -26,7 +26,6 @@ class OrderController extends Controller
         // Валидация запроса
         $validated = $request->validate([
             'booking_id' => 'required|exists:bookings,id', // ID бронирования должно существовать
-            'status' => 'required|string|in:pending,paid,completed,cancelled', // Статус заказа
         ]);
 
         // Получаем бронирование по ID
@@ -38,39 +37,24 @@ class OrderController extends Controller
         $validated['total_price'] = $totalPrice;
 
         $order = Order::create($validated);
+        $booking->update(['status' => 'paid']);
         return response()->json($order, 201);
     }
 
     public function update(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-
-        // Валидируем входные данные
         $validated = $request->validate([
-            'services' => 'nullable|array', // Массив ID услуг (опционально)
-            'services.*' => 'exists:services,id',
+            'status' => 'required|string|in:unpaid,paid,cancelled',
         ]);
-
-        $servicesJson = json_encode([]);
-
-        // Если переданы услуги, обновляем поле `services`
-        if (isset($validated['services'])) {
-            $services = Service::whereIn('id', $validated['services'])->get(['id', 'name', 'price']);
-            $servicesJson = $services->toJson();
-        }
-
-        $order->services = $servicesJson;
-
-        // Сохраняем изменения
-        $order->save();
-
-        return response()->json($order, 200); // Возвращаем обновленный заказ
+        $order->update(['status' => $validated['status']]);
+        return response()->json($order);
     }
 
     public function destroy($id)
     {
         $order = Order::findOrFail($id);
-        $order->delete();
-        return response()->json(null, 204); // Успешное удаление
+        $order->update(['status' => 'cancelled']);
+        return response()->json(null, 204);
     }
 }

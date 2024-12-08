@@ -38,6 +38,7 @@ class BookingController extends Controller
 
         $services = $validated['services'] ?? [];
         $validated['services'] = $this->getServicesDump($services);
+        $validated['status'] = 'unpaid';
         $booking = Booking::create($validated);
 
         $room->update(['is_available' => false]);

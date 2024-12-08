@@ -98,7 +98,7 @@ const RoomDetails = () => {
     dots: false,
     infinite: true,
     speed: 500,
-    slidesToShow: room.images.length > 1 ? 1 : 1,  // Отображаем один слайд, если картинка одна
+    slidesToShow: 1,  // Отображаем один слайд, если картинка одна
     slidesToScroll: 1,
     autoplay: false,
     nextArrow: <NextArrow/>,

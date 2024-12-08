@@ -1,20 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-const RoomCard = ({ room }) => {
+const RoomCard = ({room}) => {
   return (
-    <Link to={`/room/${room.id}`} style={roomCardLinkStyle}>
-      <div style={roomCardStyle}>
-        {room.images && room.images.length > 0 ? (
-          <img src={room.images[0]} alt={`Room ${room.id}`} style={imageStyle} />
-        ) : (
-          <div style={imagePlaceholderStyle}>Нет изображения</div>
-        )}
+    <div style={roomCardStyle}>
+      {room.images && room.images.length > 0 ? (
+        <img src={room.images[0]} alt={`Room ${room.id}`} style={imageStyle}/>
+      ) : (
+        <div style={imagePlaceholderStyle}>Нет изображения</div>
+      )}
+      <Link to={`/room/${room.id}`} style={roomCardLinkStyle}>
         <h2 style={roomNameStyle}>{room.name}</h2>
-        <p style={roomDescriptionStyle}>{room.description}</p>
-        <p><strong>Цена:</strong> {room.price} ₽</p>
-      </div>
-    </Link>
+      </Link>
+      <p style={roomDescriptionStyle}>{room.description}</p>
+      <p><strong>Цена:</strong> {room.price} ₽</p>
+    </div>
   );
 };
 
@@ -64,6 +64,7 @@ const imagePlaceholderStyle = {
 const roomNameStyle = {
   fontSize: '24px',
   fontWeight: 'bold',
+  textDecoration: 'underline',
   color: '#333',
   marginBottom: '10px',
 };

@@ -11,15 +11,16 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'client_id',     // ID клиента
-        'room_id',       // ID номера
-        'day_in',        // Дата заезда
-        'day_out',       // Дата выезда
+        'client_id',
+        'room_id',
+        'day_in',
+        'day_out',
+        'status',
         'services'
     ];
 
     protected $casts = [
-        'services' => 'array', // Делаем поле services массивом
+        'services' => 'array',
     ];
 
     public function client()

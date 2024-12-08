@@ -10,8 +10,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-        'booking_id',  // ID бронирования
-        'status',
+        'booking_id',
         'total_price'
     ];
 

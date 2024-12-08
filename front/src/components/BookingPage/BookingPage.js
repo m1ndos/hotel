@@ -1,63 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import DatePicker from "react-datepicker";
+import React, {useState, useEffect} from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
+import BookingFilters from "./BookingFilters";
+import BookingRooms from "./BookingRooms";
+import BookingServices from "./BookingServices";
+import {useNavigate} from "react-router-dom";
+import BookingConfirmationModal from "./BookingConfirmationModal";
 
 const BookingPage = () => {
   const [rooms, setRooms] = useState([]); // Все комнаты
   const [availableRooms, setAvailableRooms] = useState([]); // Фильтрованные комнаты
-  const [features, setFeatures] = useState([]); // Список фич
-  const [categories, setCategories] = useState([]); // Список категорий
   const [dateRange, setDateRange] = useState([null, null]);
   const [peopleCount, setPeopleCount] = useState(1);
   const [loading, setLoading] = useState(true);
-
+  const [services, setServices] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null); // Только одна комната
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [startDate, endDate] = dateRange;
+  const navigate = useNavigate();
 
   // Загрузка данных с бэкенда
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const roomsResponse = await fetch('http://localhost:8000/api/rooms');
-        if (!roomsResponse.ok) {
-          throw new Error('Ошибка при загрузке комнат');
-        }
-        const roomsData = await roomsResponse.json();
-        setRooms(roomsData);
-        setAvailableRooms(roomsData);
-
-        const featuresResponse = await fetch('http://localhost:8000/api/features');
-        if (!featuresResponse.ok) {
-          throw new Error('Ошибка при загрузке фич');
-        }
-        const featuresData = await featuresResponse.json();
-        setFeatures(featuresData);
-
-        const categoriesResponse = await fetch('http://localhost:8000/api/categories');
-        if (!categoriesResponse.ok) {
-          throw new Error('Ошибка при загрузке категорий');
-        }
-        const categoriesData = await categoriesResponse.json();
-        setCategories(categoriesData);
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Ошибка при загрузке данных:", error);
-      }
-    };
-
-    fetchRooms();
+    const fetchData = async () => {
+      await fetchRooms();
+      await fetchServices();
+    }
+    fetchData()
   }, []);
 
-  // Получение имени категории по category_id
-  const getCategoryName = (categoryId) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.name : 'Неизвестная категория';
+  const fetchRooms = async () => {
+    try {
+      const roomsResponse = await fetch('http://localhost:8000/api/rooms');
+      if (!roomsResponse.ok) {
+        throw new Error('Ошибка при загрузке комнат');
+      }
+      const roomsData = await roomsResponse.json();
+      setRooms(roomsData);
+      setAvailableRooms(roomsData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Ошибка при загрузке данных:", error);
+    }
   };
 
-  const getFeatureNames = (featureIds) => {
-    return features
-      .filter(feature => featureIds.includes(feature.id))
-      .map(feature => feature.name);
+  useEffect(() => {
+    validateBooking();
+  }, [startDate, endDate, selectedRoom, selectedServices]);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/services');
+      if (!response.ok) {
+        throw new Error('Ошибка при загрузке услуг');
+      }
+      const servicesData = await response.json();
+      setServices(servicesData);
+    } catch (error) {
+      console.error("Ошибка при загрузке услуг:", error);
+    }
   };
 
   const handleSearchRooms = async () => {
@@ -67,14 +68,9 @@ const BookingPage = () => {
         throw new Error('Ошибка при загрузке бронирований');
       }
       const bookings = await response.json();
-      console.log("Полученные бронирования:", bookings);
-
-      console.log("Выбранные даты:", startDate, "по", endDate);
 
       const filteredRooms = rooms.filter((room) => {
         const roomBookings = bookings.filter(booking => booking.room_id === room.id);
-        console.log(roomBookings);
-
         const isAvailable = roomBookings.every(booking => {
           const bookingStart = new Date(booking.day_in);
           const bookingEnd = new Date(booking.day_out);
@@ -82,192 +78,158 @@ const BookingPage = () => {
             endDate <= bookingStart || startDate >= bookingEnd
           );
         });
-
         const isCapacitySufficient = room.people_quantity >= peopleCount;
 
         return isAvailable && isCapacitySufficient;
       });
-
-      console.log("Фильтрованные комнаты:", filteredRooms);
       setAvailableRooms(filteredRooms);
     } catch (error) {
       console.error("Ошибка при фильтрации комнат:", error);
     }
   };
 
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Месяц начинается с 0, поэтому прибавляем 1
+    const day = String(date.getDate()).padStart(2, '0'); // День с 0, если меньше 10
+    return `${year}-${month}-${day}`;
+  };
+
+  const createBooking = async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'))
+    const bookingData = {
+      client_id: userInfo.client_id,
+      room_id: selectedRoom.id,
+      day_in: formatDate(startDate),
+      day_out: formatDate(endDate),
+      services: selectedServices.map(service => service.id) || null,
+    };
+
+    try {
+      const response = await fetch('http://localhost:8000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || data.message);
+      } else {
+        return true;
+      }
+    } catch (err) {
+      alert(err.error || err.message);
+    }
+
+    return null;
+
+  }
+
+  const calculateTotalAmount = () => {
+    if (!selectedRoom) return 0;
+    const roomPrice = selectedRoom.price;
+    const servicesPrice = selectedServices.reduce((acc, service) => acc + service.price, 0);
+    return roomPrice + servicesPrice;
+  };
+
+  const handleConfirmBooking = () => {
+    const success = createBooking()
+    if (!success) {
+      return;
+    }
+
+    navigate('/bookings')
+
+  };
+
+  const validateBooking = () => {
+    if (!startDate || !endDate || !selectedRoom) {
+      setErrorMessage('Пожалуйста, выберите дату и комнату.');
+    } else {
+      setErrorMessage('');
+    }
+  };
+
+  if (loading) {
+    return <p>Загрузка данных...</p>
+  }
+
   return (
     <div style={containerStyle}>
-      {loading ? (
-        <p>Загрузка данных...</p>
-      ) : (
-        <>
-          <div style={filterStyle}>
-            <div style={filterRowStyle}>
-              <div style={filterItemStyle}>
-                <label style={labelStyle}>Выберите диапазон дат:</label>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(dates) => {
-                    const [start, end] = dates;
-                    if (start && (!end || end > start)) {
-                      setDateRange([start, end]);
-                    }
-                  }}
-                  startDate={startDate}
-                  endDate={endDate}
-                  selectsRange
-                  minDate={new Date()} // Запрет выбора дат ранее сегодняшней
-                  maxDate={endDate ? new Date(endDate) : undefined} // Ограничение для выбора даты окончания
-                  placeholderText="Выберите даты"
-                  popperPlacement="bottom-start"
-                  className="custom-datepicker-input"
-                  calendarClassName="custom-calendar"
-                />
-              </div>
-              <div style={filterItemStyle}>
-                <label style={labelStyle}>Количество проживающих:</label>
-                <div style={counterStyle}>
-                  <button style={counterButtonStyle} onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))}>-</button>
-                  <span style={countStyle}>{peopleCount}</span>
-                  <button style={counterButtonStyle} onClick={() => setPeopleCount(peopleCount + 1)}>+</button>
-                </div>
-              </div>
-              <button style={searchButtonStyle} onClick={handleSearchRooms}>Подобрать номера</button>
-            </div>
-          </div>
 
-          <div style={roomsStyle}>
-            {availableRooms.length > 0 ? (
-              availableRooms.map(room => (
-                <div key={room.id} style={roomCardStyle}>
-                  <img
-                    src={room.images && room.images.length > 0 ? room.images[0] : 'default-image-url.jpg'}
-                    alt={room.name}
-                    style={roomImageStyle}
-                  />
-                  <div style={roomDescriptionStyle}>
-                    <h3>{room.name}</h3>
-                    <p>Категория: {getCategoryName(room.category_id)}</p>
-                    <p>Особенности:</p>
-                    <ul>
-                      {getFeatureNames(room.feature_ids).map((feature, index) => (
-                        <li key={index}>{feature}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p style={noRoomsTextStyle}>Нет доступных номеров для выбранных фильтров.</p>
-            )}
-          </div>
-        </>
+      <BookingFilters
+        startDate={startDate}
+        endDate={endDate}
+        peopleCount={peopleCount}
+        setDateRange={setDateRange}
+        setPeopleCount={setPeopleCount}
+        onSearchRooms={handleSearchRooms}
+      />
+
+      <BookingRooms
+        rooms={availableRooms}
+        selectedRoom={selectedRoom}
+        onSelectRoom={(room) => setSelectedRoom(room)}
+      />
+
+      <BookingServices services={services} selectedServices={selectedServices} onChange={setSelectedServices}/>
+
+      <button
+        onClick={() => {
+          setShowConfirmationModal(true);
+        }}
+        style={errorMessage ? {...bookingButtonStyle, ...disabledButtonStyle} : bookingButtonStyle}
+        disabled={!!errorMessage}
+        title={errorMessage} // Добавляем сообщение ошибки в качестве title
+      >
+        Забронировать
+      </button>
+
+      {showConfirmationModal && (
+        <BookingConfirmationModal
+          isOpen={showConfirmationModal}
+          closeModal={() => setShowConfirmationModal(false)}
+          room={selectedRoom}
+          startDate={startDate}
+          endDate={endDate}
+          peopleCount={peopleCount}
+          selectedServices={selectedServices}
+          totalAmount={calculateTotalAmount()}
+          onConfirm={handleConfirmBooking}
+        />
       )}
+
     </div>
   );
 };
 
-// Стили
 const containerStyle = {
   padding: '100px',
   fontFamily: "Arial, sans-serif",
-};
-
-const filterStyle = {
   display: 'flex',
   flexDirection: 'column',
-  gap: '20px',
-  marginBottom: '40px',
-  backgroundColor: '#f8f9fa',
-  padding: '20px',
-  borderRadius: '10px',
-  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+  gap: '35px'
 };
 
-const filterRowStyle = {
-  display: 'flex',
-  gap: '20px',
-  alignItems: 'center',
-};
-
-const filterItemStyle = {
-  flex: 1,
-};
-
-const labelStyle = {
-  fontSize: '18px',
-  marginBottom: '10px',
-  marginRight: "10px",
-};
-
-const counterStyle = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px',
-};
-
-const counterButtonStyle = {
-  width: '50px',
-  height: '50px',
+const bookingButtonStyle = {
+  padding: '12px 25px',
   backgroundColor: '#FA8653',
   color: '#fff',
   border: 'none',
-  borderRadius: '10px',
-  fontSize: '20px',
-  cursor: 'pointer',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  transition: 'background-color 0.3s',
-};
-
-const countStyle = {
-  fontSize: '20px',
-  padding: '0 20px',
-};
-
-const searchButtonStyle = {
-  padding: '15px 30px',
-  backgroundColor: '#FA8653',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '10px',
+  borderRadius: '5px',
   fontSize: '18px',
   fontWeight: 'bold',
   cursor: 'pointer',
   transition: 'background-color 0.3s',
+  width: 'auto', // Убираем на всю ширину
 };
 
-const roomsStyle = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '20px',
-};
-
-const roomCardStyle = {
-  width: '400px',
-  backgroundColor: '#fff',
-  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-  borderRadius: '10px',
-  overflow: 'hidden',
-  textAlign: 'start',
-};
-
-const roomImageStyle = {
-  width: '100%',
-  height: '200px',
-  objectFit: 'cover',
-};
-
-const roomDescriptionStyle = {
-  padding: '20px',
-  fontSize: '16px',
-};
-
-const noRoomsTextStyle = {
-  fontSize: '18px',
-  color: '#555',
-  textAlign: 'center',
+const disabledButtonStyle = {
+  backgroundColor: '#ccc',
+  cursor: 'not-allowed',
 };
 
 export default BookingPage;
