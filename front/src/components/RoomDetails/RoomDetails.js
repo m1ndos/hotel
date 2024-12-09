@@ -138,7 +138,7 @@ const RoomDetails = () => {
           <p><strong>Адрес:</strong> {room.address}</p>
           <p><strong>Цена:</strong> {room.price} ₽</p>
           <p><strong>Количество людей:</strong> {room.people_quantity}</p>
-          <p><strong>Доступность:</strong> {room.is_available ? 'Доступна' : 'Недоступна'}</p>
+          {/* <p><strong>Доступность:</strong> {room.is_available ? 'Доступна' : 'Недоступна'}</p> */}
           <p>{room.description}</p>
 
           {/* Выводим особенности комнаты */}

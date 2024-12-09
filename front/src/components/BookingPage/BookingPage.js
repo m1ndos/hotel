@@ -18,6 +18,7 @@ const BookingPage = () => {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [startDate, endDate] = dateRange;
+  const [bookings, setBookings] = useState([]);
   const navigate = useNavigate();
 
   // Загрузка данных с бэкенда
@@ -25,6 +26,7 @@ const BookingPage = () => {
     const fetchData = async () => {
       await fetchRooms();
       await fetchServices();
+      await fetchBookings();
     }
     fetchData()
   }, []);
@@ -44,6 +46,45 @@ const BookingPage = () => {
     }
   };
 
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/api/bookings');
+      if (!response.ok) {
+        throw new Error('Ошибка при загрузке бронирований');
+      }
+      const data = await response.json();
+      setBookings(data)
+    } catch (error) {
+      console.error("Ошибка при фильтрации комнат:", error);
+      return [];
+    }
+  };
+
+  const handleSearchRooms = async () => {
+    const filteredRooms = rooms.filter((room) => {
+      const roomBookings = bookings.filter(booking => booking.room_id === room.id);
+      const isAvailable = roomBookings.every(booking => {
+        const bookingStart = new Date(booking.day_in);
+        const bookingEnd = new Date(booking.day_out);
+        return (
+          endDate <= bookingStart || startDate >= bookingEnd
+        );
+      });
+      const isCapacitySufficient = room.people_quantity >= peopleCount;
+
+      return isAvailable && isCapacitySufficient;
+    });
+    setAvailableRooms(filteredRooms);
+  };
+
+  useEffect(() => {
+   
+      handleSearchRooms();
+      setSelectedRoom(null)
+    
+  }, [startDate, endDate, peopleCount]);
+
+
   useEffect(() => {
     validateBooking();
   }, [startDate, endDate, selectedRoom, selectedServices]);
@@ -61,32 +102,34 @@ const BookingPage = () => {
     }
   };
 
-  const handleSearchRooms = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/api/bookings');
-      if (!response.ok) {
-        throw new Error('Ошибка при загрузке бронирований');
-      }
-      const bookings = await response.json();
 
-      const filteredRooms = rooms.filter((room) => {
-        const roomBookings = bookings.filter(booking => booking.room_id === room.id);
-        const isAvailable = roomBookings.every(booking => {
-          const bookingStart = new Date(booking.day_in);
-          const bookingEnd = new Date(booking.day_out);
-          return (
-            endDate <= bookingStart || startDate >= bookingEnd
-          );
-        });
-        const isCapacitySufficient = room.people_quantity >= peopleCount;
 
-        return isAvailable && isCapacitySufficient;
-      });
-      setAvailableRooms(filteredRooms);
-    } catch (error) {
-      console.error("Ошибка при фильтрации комнат:", error);
-    }
-  };
+  // const handleSearchRooms = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:8000/api/bookings');
+  //     if (!response.ok) {
+  //       throw new Error('Ошибка при загрузке бронирований');
+  //     }
+  //     const bookings = await response.json();
+
+  //     const filteredRooms = rooms.filter((room) => {
+  //       const roomBookings = bookings.filter(booking => booking.room_id === room.id);
+  //       const isAvailable = roomBookings.every(booking => {
+  //         const bookingStart = new Date(booking.day_in);
+  //         const bookingEnd = new Date(booking.day_out);
+  //         return (
+  //           endDate <= bookingStart || startDate >= bookingEnd
+  //         );
+  //       });
+  //       const isCapacitySufficient = room.people_quantity >= peopleCount;
+
+  //       return isAvailable && isCapacitySufficient;
+  //     });
+  //     setAvailableRooms(filteredRooms);
+  //   } catch (error) {
+  //     console.error("Ошибка при фильтрации комнат:", error);
+  //   }
+  // };
 
   const formatDate = (date) => {
     const year = date.getFullYear();

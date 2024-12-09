@@ -1,17 +1,28 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import auth_icon from '../../images/auth_icon.svg';
 import AuthTab from "./AuthTab";
 import RegisterTab from "./RegisterTab";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Auth = ({setIsAuthenticated}) => {
+const Auth = ({ setIsAuthenticated, setIsAdmin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate()
 
   const handleSuccessAuth = (data) => {
     localStorage.setItem('userInfo', JSON.stringify(data));
+    console.log(JSON.parse(localStorage.getItem('userInfo')));
+    
     setIsAuthenticated(true);
-    navigate('/');
+    console.log(data.is_admin);
+    
+    // Устанавливаем роль администратора
+    if (data.is_admin) {
+      setIsAdmin(true);
+      navigate('/admin'); // Перенаправляем на админку, если пользователь администратор
+    } else {
+      setIsAdmin(false);
+      navigate('/'); // Перенаправляем на главную, если не администратор
+    }
   }
 
   return (
@@ -32,13 +43,13 @@ const Auth = ({setIsAuthenticated}) => {
       </div>
       <div style={styles.formContainer}>
         <div style={styles.imgContainer}>
-          <img style={styles.img} src={auth_icon} alt="auth_icon"/>
+          <img style={styles.img} src={auth_icon} alt="auth_icon" />
         </div>
         <div style={styles.form}>
           {isLogin ?
-            <AuthTab handleSuccessAuth={handleSuccessAuth}/>
+            <AuthTab handleSuccessAuth={handleSuccessAuth} />
             :
-            <RegisterTab handleSuccessAuth={handleSuccessAuth}/>
+            <RegisterTab handleSuccessAuth={handleSuccessAuth} />
           }
         </div>
       </div>

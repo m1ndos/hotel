@@ -2,7 +2,7 @@ import React from 'react';
 import DatePicker from "react-datepicker";
 import 'react-datepicker/dist/react-datepicker.css';
 
-const BookingFilters = ({startDate, endDate, peopleCount, setDateRange, setPeopleCount, onSearchRooms}) => {
+const BookingFilters = ({ startDate, endDate, peopleCount, setDateRange, setPeopleCount, onSearchRooms }) => {
   return (
     <div style={styles.filterStyle}>
       <div style={styles.filterRowStyle}>
@@ -31,13 +31,28 @@ const BookingFilters = ({startDate, endDate, peopleCount, setDateRange, setPeopl
         <div style={styles.filterItemStyle}>
           <label style={styles.labelStyle}>Количество проживающих:</label>
           <div style={styles.counterStyle}>
-            <button style={styles.counterButtonStyle} onClick={() => setPeopleCount(Math.max(1, peopleCount - 1))}>-
+            <button
+              style={styles.counterButtonStyle}
+              onClick={() => {
+                setPeopleCount(Math.max(1, peopleCount - 1));
+                // onSearchRooms();
+              }}
+            >
+              -
             </button>
             <span style={styles.countStyle}>{peopleCount}</span>
-            <button style={styles.counterButtonStyle} onClick={() => setPeopleCount(peopleCount + 1)}>+</button>
+            <button
+              style={styles.counterButtonStyle}
+              onClick={() => {
+                setPeopleCount(peopleCount + 1);
+                // onSearchRooms();
+              }}
+            >
+              +
+            </button>
           </div>
         </div>
-        <button style={styles.searchButtonStyle} onClick={onSearchRooms}>Подобрать номера</button>
+        {/* <button style={styles.searchButtonStyle} onClick={onSearchRooms}>Подобрать номера</button> */}
       </div>
     </div>
   );

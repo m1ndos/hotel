@@ -14,6 +14,7 @@ const HeaderNavigation = ({isAuthenticated, setIsAuthenticated}) => {
   const handleLogout = () => {
     localStorage.removeItem('userInfo')
     setIsAuthenticated(false)
+    handleNavigation('/auth')
   }
 
   return (

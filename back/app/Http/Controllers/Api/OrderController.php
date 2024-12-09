@@ -29,16 +29,19 @@ class OrderController extends Controller
         ]);
 
         // Получаем бронирование по ID
-        $booking = Booking::with(['room.category'])->findOrFail($validated['booking_id']);
+        $booking = Booking::with(['room'])->findOrFail($validated['booking_id']);;
 
-        $roomPrice = $booking->room->category->price;
-        $servicesPrice = collect($booking->services)->sum('price');
+        $roomPrice = $booking->room->price;
+        $services = json_decode($booking->services, true);
+        $servicesPrice = collect($services)->sum('price');
         $totalPrice = $roomPrice + $servicesPrice;
+       
         $validated['total_price'] = $totalPrice;
 
         $order = Order::create($validated);
         $booking->update(['status' => 'paid']);
         return response()->json($order, 201);
+        
     }
 
     public function update(Request $request, $id)

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
-const PaymentModal = ({booking, onClose}) => {
+const PaymentModal = ({booking, onClose, isAuthenticated}) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [error, setError] = useState('')
@@ -11,11 +11,12 @@ const PaymentModal = ({booking, onClose}) => {
   });
 
   const calculateTotalAmount = () => {
-    const roomPrice = booking.room.price;
-    const services = JSON.parse(booking.services);
-    const servicesPrice = services.reduce((acc, service) => acc + service.price, 0);
-    return roomPrice + servicesPrice;
+    const roomPrice = booking?.room?.price || 0; // Проверяем наличие room и price, устанавливаем значение 0 по умолчанию
+    const services = booking?.services ? JSON.parse(booking.services) : []; // Если services есть, парсим их, иначе задаем пустой массив
+    const servicesPrice = services?.reduce((acc, service) => acc + (service.price || 0), 0) || 0; // Используем reduce с защитой от null
+    return roomPrice + servicesPrice; // Суммируем стоимость комнаты и услуг
   };
+  
 
   const validateForm = () => {
     const cardRegex = /^[0-9]{16}$/; // 16 цифр для номера карты
@@ -38,6 +39,7 @@ const PaymentModal = ({booking, onClose}) => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+    
     if (! isValid) {
       return;
     }
@@ -49,24 +51,39 @@ const PaymentModal = ({booking, onClose}) => {
   };
 
   const createOrder = async () => {
-    const body = {booking_id: booking.id}
-    const response = await fetch('http://localhost:8000/api/orders', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    const data = await response.json()
-    if (!response.ok) {
-      setError(data.error || data.message)
+    const body = { booking_id: booking.id };
+    try {
+      console.log('Отправляем запрос с телом:', body); // Логируем отправляемые данные
+  
+      const response = await fetch('http://localhost:8000/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+  
+      console.log('Получен ответ с кодом:', response.status); // Логируем статус ответа
+  
+      const data = await response.json();
+      console.log('Получены данные:', data); // Логируем данные из ответа
+  
+      if (!response.ok) {
+        console.error('Ошибка сервера:', data.error || data.message); // Логируем ошибку
+        setError(data.error || data.message);
+        return null;
+      } else {
+        setError('');
+      }
+  
+      return true;
+    } catch (err) {
+      console.error('Ошибка сети или другая ошибка:', err); // Логируем ошибки сети
+      setError('Ошибка сети: ' + err.message);
       return null;
-    } else {
-      setError('')
     }
-    return true;
-  }
+  };
+  
 
   const handleCardChange = (e) => {
     setCardNumber(e.target.value);

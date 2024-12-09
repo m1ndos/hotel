@@ -25,6 +25,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'email' => 'required|email|unique:users',
             'password' => 'required|min:3',
+            'is_admin' => 'boolean', // Проверяем, что is_admin — это булево значение
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
@@ -87,6 +88,7 @@ class UserController extends Controller
         return response()->json([
             'id' => $user->id,
             'email' => $user->email,
+            'is_admin' => $user->is_admin, // Добавлено поле is_admin
             'created_at' => $user->created_at,
             'updated_at' => $user->updated_at,
             'client_id' => $client_id,
