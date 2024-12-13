@@ -10,12 +10,12 @@ class FeatureController extends Controller
 {
     public function index()
     {
-        return Feature::all(); // Возвращает список всех особенностей
+        return Feature::all();
     }
 
     public function show($id)
     {
-        return Feature::findOrFail($id); // Возвращает конкретную особенность
+        return Feature::findOrFail($id);
     }
 
     public function store(Request $request)

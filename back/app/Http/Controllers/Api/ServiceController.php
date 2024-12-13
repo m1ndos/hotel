@@ -11,12 +11,12 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        return Service::all(); // Возвращает список всех услуг
+        return Service::all();
     }
 
     public function show($id)
     {
-        return Service::findOrFail($id); // Возвращает конкретную услугу
+        return Service::findOrFail($id);
     }
 
     public function store(Request $request)

@@ -23,9 +23,8 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
-        // Валидация запроса
         $validated = $request->validate([
-            'booking_id' => 'required|exists:bookings,id', // ID бронирования должно существовать
+            'booking_id' => 'required|exists:bookings,id',
         ]);
 
         // Получаем бронирование по ID

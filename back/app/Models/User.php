@@ -12,9 +12,9 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'email',          // Электронная почта
-        'password',       // Пароль
-        'is_admin',       // Указывает, является ли пользователь администратором
+        'email',          
+        'password',       
+        'is_admin',       
     ];
 
     protected $hidden = [

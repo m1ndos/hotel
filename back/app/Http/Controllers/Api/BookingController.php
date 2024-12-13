@@ -27,7 +27,7 @@ class BookingController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'day_in' => 'required|date',
             'day_out' => 'required|date|after:day_in',
-            'services' => 'nullable|array', // Массив ID услуг (опционально)
+            'services' => 'nullable|array',
             'services.*' => 'exists:services,id',
         ]);
 
@@ -48,7 +48,7 @@ class BookingController extends Controller
             'room_id' => 'exists:rooms,id',
             'day_in' => 'date',
             'day_out' => 'date|after:day_in',
-            'services' => 'nullable|array', // Массив ID услуг (опционально)
+            'services' => 'nullable|array',
             'services.*' => 'exists:services,id',
         ]);
 

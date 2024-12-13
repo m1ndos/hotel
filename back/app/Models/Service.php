@@ -10,8 +10,8 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',        // Название услуги
-        'price',       // Цена услуги
+        'name',        
+        'price',       
     ];
 
     public function orders()

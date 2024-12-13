@@ -10,12 +10,12 @@ class RoomController extends Controller
 {
     public function index()
     {
-        return Room::with('category', 'features')->get(); // Возвращаем комнаты с категориями и фичами
+        return Room::with('category', 'features')->get();
     }
 
     public function show($id)
     {
-        return Room::with('category', 'features')->findOrFail($id); // Возвращает конкретную комнату
+        return Room::with('category', 'features')->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -26,7 +26,7 @@ class RoomController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'people_quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0', // Валидация для поля цены
+            'price' => 'required|numeric|min:0',
             'features' => 'nullable|array',
             'features.*' => 'exists:features,id',
             'images' => 'nullable|array|max:3',
@@ -53,7 +53,7 @@ class RoomController extends Controller
             'category_id' => 'exists:categories,id',
             'description' => 'nullable|string',
             'people_quantity' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0', // Валидация для поля цены
+            'price' => 'nullable|numeric|min:0',
             'features' => 'nullable|array',
             'features.*' => 'exists:features,id',
             'images' => 'nullable|array|max:3',
