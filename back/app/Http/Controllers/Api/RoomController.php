@@ -47,7 +47,6 @@ class RoomController extends Controller
 {
     $room = Room::findOrFail($id);
 
-<<<<<<< HEAD
     $validated = $request->validate([
         'name' => 'string|max:255',
         'address' => 'string|max:255',
@@ -60,20 +59,6 @@ class RoomController extends Controller
         'images' => 'nullable|array|max:3',
         'images.*' => 'url',
     ]);
-=======
-        $validated = $request->validate([
-            'name' => 'string|max:255',
-            'address' => 'string|max:255',
-            'category_id' => 'exists:categories,id',
-            'description' => 'nullable|string',
-            'people_quantity' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0',
-            'features' => 'nullable|array',
-            'features.*' => 'exists:features,id',
-            'images' => 'nullable|array|max:3',
-            'images.*' => 'url',
-        ]);
->>>>>>> 00fa2155a29879aee4664d9d2ecdc67202bd4950
 
     $room->update($validated);
 
