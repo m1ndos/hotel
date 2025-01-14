@@ -44,30 +44,36 @@ class RoomController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $room = Room::findOrFail($id);
+{
+    $room = Room::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'string|max:255',
-            'address' => 'string|max:255',
-            'category_id' => 'exists:categories,id',
-            'description' => 'nullable|string',
-            'people_quantity' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0', // Валидация для поля цены
-            'features' => 'nullable|array',
-            'features.*' => 'exists:features,id',
-            'images' => 'nullable|array|max:3',
-            'images.*' => 'url',
-        ]);
+    $validated = $request->validate([
+        'name' => 'string|max:255',
+        'address' => 'string|max:255',
+        'category_id' => 'exists:categories,id',
+        'description' => 'nullable|string',
+        'people_quantity' => 'nullable|integer|min:1',
+        'price' => 'nullable|numeric|min:0', // Валидация для поля цены
+        'features' => 'nullable|array',
+        'features.*' => 'exists:features,id',
+        'images' => 'nullable|array|max:3',
+        'images.*' => 'url',
+    ]);
 
-        $room->update($validated);
+    $room->update($validated);
 
-        if (isset($validated['features'])) {
-            $room->features()->sync($validated['features']);
-        }
-
-        return response()->json($room);
+    if (isset($validated['features'])) {
+        $room->features()->sync($validated['features']);
     }
+
+    if (isset($validated['images'])) {
+        // Обновление списка изображений
+        $room->images = $validated['images'];
+    }
+
+    return response()->json($room);
+}
+
 
     public function destroy($id)
     {
