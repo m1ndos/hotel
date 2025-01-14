@@ -10,12 +10,12 @@ class ClientController extends Controller
 {
     public function index()
     {
-        return Client::with('user')->get(); // Возвращает список всех клиентов с пользователями
+        return Client::with('user')->get();
     }
 
     public function show($id)
     {
-        return Client::with('user')->findOrFail($id); // Возвращает конкретного клиента
+        return Client::with('user')->findOrFail($id);
     }
 
     public function store(Request $request)

@@ -10,12 +10,12 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::all(); // Возвращает все категории без фич
+        return Category::all();
     }
 
     public function show($id)
     {
-        return Category::findOrFail($id); // Возвращает конкретную категорию без фич
+        return Category::findOrFail($id);
     }
 
     public function store(Request $request)

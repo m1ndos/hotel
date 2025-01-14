@@ -10,12 +10,12 @@ class RoomController extends Controller
 {
     public function index()
     {
-        return Room::with('category', 'features')->get(); // Возвращаем комнаты с категориями и фичами
+        return Room::with('category', 'features')->get();
     }
 
     public function show($id)
     {
-        return Room::with('category', 'features')->findOrFail($id); // Возвращает конкретную комнату
+        return Room::with('category', 'features')->findOrFail($id);
     }
 
     public function store(Request $request)
@@ -26,7 +26,7 @@ class RoomController extends Controller
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
             'people_quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0', // Валидация для поля цены
+            'price' => 'required|numeric|min:0',
             'features' => 'nullable|array',
             'features.*' => 'exists:features,id',
             'images' => 'nullable|array|max:3',
@@ -47,6 +47,7 @@ class RoomController extends Controller
 {
     $room = Room::findOrFail($id);
 
+<<<<<<< HEAD
     $validated = $request->validate([
         'name' => 'string|max:255',
         'address' => 'string|max:255',
@@ -59,6 +60,20 @@ class RoomController extends Controller
         'images' => 'nullable|array|max:3',
         'images.*' => 'url',
     ]);
+=======
+        $validated = $request->validate([
+            'name' => 'string|max:255',
+            'address' => 'string|max:255',
+            'category_id' => 'exists:categories,id',
+            'description' => 'nullable|string',
+            'people_quantity' => 'nullable|integer|min:1',
+            'price' => 'nullable|numeric|min:0',
+            'features' => 'nullable|array',
+            'features.*' => 'exists:features,id',
+            'images' => 'nullable|array|max:3',
+            'images.*' => 'url',
+        ]);
+>>>>>>> 00fa2155a29879aee4664d9d2ecdc67202bd4950
 
     $room->update($validated);
 

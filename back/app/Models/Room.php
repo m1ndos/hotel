@@ -14,8 +14,8 @@ class Room extends Model
         'address',
         'category_id',
         'description',
-        'people_quantity', // Поле вместимости
-        'price', // Поле цены
+        'people_quantity',
+        'price',
         'images',
         'is_available',
     ];

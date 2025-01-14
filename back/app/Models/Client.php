@@ -10,9 +10,9 @@ class Client extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',        // Имя клиента
-        'passport',    // Паспортные данные клиента
-        'user_id',     // Внешний ключ на пользователя
+        'name',        
+        'passport',    
+        'user_id',     
     ];
 
     public function bookings()
