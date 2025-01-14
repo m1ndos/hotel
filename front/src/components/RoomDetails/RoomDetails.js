@@ -61,10 +61,12 @@ const RoomDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [features, setFeatures] = useState([]); // Состояние для списка особенностей
 
   useEffect(() => {
     fetchRoomDetails();
     checkAdminStatus();
+    fetchFeatures();
   }, [roomId]);
 
   const checkAdminStatus = () => {
@@ -90,81 +92,115 @@ const RoomDetails = () => {
     }
   };
 
-  const handleUpdateRoom = async () => {
-    const updatedData = {
-      name: room.name,
-      address: room.address,
-      description: room.description,
-      price: room.price,
-      people_quantity: room.people_quantity,
-      features: room.features.map((feature) => feature.id), // Массив ID особенностей
-      images: room.images, // Массив URL-ов изображений
-    };
-  
+  const fetchFeatures = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/rooms/${roomId}`, {
-        method: 'PUT',
-        body: JSON.stringify(updatedData),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
+      const response = await fetch('http://localhost:8000/api/features');
       if (!response.ok) {
-        throw new Error('Ошибка обновления данных');
+        throw new Error('Не удалось загрузить список особенностей');
       }
-      
-      const updatedRoom = await response.json();
-      setRoom(updatedRoom);  // Обновляем состояние с новыми данными
+      const data = await response.json();
+      setFeatures(data); // Обновляем состояние с полученными особенностями
     } catch (error) {
       setError(error.message);
     }
   };
-  
 
-  const handleEdit = (field) => {
-    const newValue = prompt(`Введите новое значение для ${field}:`, room[field]);
+  const handleUpdateRoom = async (updatedRoomData) => {
+    try {
+      console.log(`http://localhost:8000/api/rooms/${roomId}`);
+
+      const response = await fetch(`http://localhost:8000/api/rooms/${roomId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          name: updatedRoomData.name,
+          address: updatedRoomData.address,
+          description: updatedRoomData.description,
+          price: updatedRoomData.price,
+          people_quantity: updatedRoomData.people_quantity,
+          features: updatedRoomData.features.length > 0 ? updatedRoomData.features.map(f => f.id) : [], // Передаем пустой массив, если нет особенностей
+          images: updatedRoomData.images,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Ошибка обновления данных: ${errorText}`);
+      }
+
+      const updatedRoom = await response.json();
+
+      // setRoom(updatedRoom); // Обновляем состояние с актуальными данными
+      await fetchRoomDetails()
+    } catch (error) {
+      console.error('Ошибка при обновлении:', error.message);
+      setError(error.message);
+    }
+  };
+
+
+  const handleEdit = async (field) => {
+    console.log(`Редактирование поля: ${field}`);
+    let newValue;
+    if (field === 'people_quantity' || field === 'price') {
+      newValue = prompt(`Введите новое значение для ${field}:`, room[field]);
+    } else {
+      newValue = prompt(`Введите новое значение для ${field}:`, room[field]);
+    }
+
     if (newValue !== null) {
-      setRoom((prevRoom) => ({
-        ...prevRoom,
-        [field]: newValue,
-      }));
-      console.log(newValue);
-      console.log(room.name);
-      console.log(room);
-      handleUpdateRoom(); // Обновляем данные после редактирования
+      const updatedRoom = {
+        ...room,
+        [field]: field === 'people_quantity' || field === 'price' ? parseFloat(newValue) : newValue, // Парсим цену и количество людей в числа
+        features: room.features, // Убедитесь, что особенности не затираются
+      };
+      console.log('Данные перед отправкой на сервер:', updatedRoom);
+      setRoom(updatedRoom); // Обновляем состояние с актуальными данными
+      await handleUpdateRoom(updatedRoom); // Обновляем данные на сервере
     }
-  };
+};
 
-  const handleAddFeature = (featureId) => {
+
+
+
+  const handleAddFeature = async (featureId) => {
     if (!room.features.some(feature => feature.id === featureId)) {
-      const updatedFeatures = [...room.features, { id: featureId }];
-      setRoom(prevRoom => ({ ...prevRoom, features: updatedFeatures }));
-      handleUpdateRoom(); // Обновляем данные после добавления особенности
+      const updatedRoom = {
+        ...room,
+        features: [...room.features, { id: featureId }]
+      };
+      setRoom(updatedRoom);
+      await handleUpdateRoom(updatedRoom);
     }
-  }  
-  
-  const handleDeleteFeature = (featureId) => {
-    const updatedFeatures = room.features.filter(feature => feature.id !== featureId);
-    setRoom(prevRoom => ({ ...prevRoom, features: updatedFeatures }));
-    handleUpdateRoom(); // Обновляем данные после удаления особенности
   };
 
+  const handleDeleteFeature = async (featureId) => {
+    const updatedRoom = {
+      ...room,
+      features: room.features.filter(feature => feature.id !== featureId)
+    };
+    setRoom(updatedRoom);
+    await handleUpdateRoom(updatedRoom);
+  };
   const handleAddImage = () => {
     const imageUrl = prompt("Введите URL изображения:");
     if (imageUrl) {
       const updatedImages = [...room.images, imageUrl];
-      setRoom(prevRoom => ({ ...prevRoom, images: updatedImages }));
-      handleUpdateRoom(); // Обновляем данные после добавления изображения
+      const updatedRoom = { ...room, images: updatedImages, features: room.features };
+      setRoom(updatedRoom);
+      handleUpdateRoom(updatedRoom);
     }
-  };  
+  };
 
   const handleDeleteImage = (imageUrl) => {
     const updatedImages = room.images.filter(image => image !== imageUrl);
-    setRoom(prevRoom => ({ ...prevRoom, images: updatedImages }));
-    handleUpdateRoom(); // Обновляем данные после удаления изображения
+    const updatedRoom = { ...room, images: updatedImages, features: room.features };
+    setRoom(updatedRoom);
+    handleUpdateRoom(updatedRoom);
   };
-  
 
   if (loading) {
     return <p>Загрузка...</p>;
@@ -228,7 +264,16 @@ const RoomDetails = () => {
           </p>
           <p>
             <strong>Количество людей:</strong> {room.people_quantity}
+            {isAdmin && (
+              <button
+                style={editButtonStyle}
+                onClick={() => handleEdit('people_quantity')}
+              >
+                Редактировать
+              </button>
+            )}
           </p>
+
           <p>
             <strong>Описание:</strong> {room.description}
             {isAdmin && <button style={editButtonStyle} onClick={() => handleEdit('description')}>Редактировать</button>}
@@ -241,7 +286,12 @@ const RoomDetails = () => {
                 <li key={feature.id} style={featureItemStyle}>
                   {feature.name}
                   {isAdmin && (
-                    <button style={deleteButtonStyle} onClick={() => handleDeleteFeature(feature.id)}>Удалить</button>
+                    <button
+                      style={deleteButtonStyle}
+                      onClick={() => handleDeleteFeature(feature.id)}
+                    >
+                      Удалить
+                    </button>
                   )}
                 </li>
               ))}
@@ -250,15 +300,14 @@ const RoomDetails = () => {
             <p>Нет особенностей</p>
           )}
 
+
           {isAdmin && (
             <div>
               <select onChange={(e) => handleAddFeature(e.target.value)}>
                 <option value="">Выберите особенность</option>
-                {/* Подключите сюда список всех особенностей из базы */}
-                {/* Пример: */}
-                {/* {features.map(feature => (
+                {features.map((feature) => (
                   <option key={feature.id} value={feature.id}>{feature.name}</option>
-                ))} */}
+                ))}
               </select>
             </div>
           )}
@@ -339,31 +388,42 @@ const featureItemStyle = {
 const addButtonStyle = {
   backgroundColor: '#007bff',
   color: '#fff',
-  padding: '10px',
-  borderRadius: '5px',
+  padding: '12px 20px',
+  borderRadius: '30px', // Сделаем кнопку с округленными углами
   cursor: 'pointer',
   fontSize: '16px',
   marginTop: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(0, 123, 255, 0.3)', // Легкая тень для кнопки
+  transition: 'all 0.3s ease', // Плавный переход
 };
 
 const editButtonStyle = {
   backgroundColor: '#28a745',
   color: '#fff',
-  padding: '5px 10px',
-  borderRadius: '5px',
+  padding: '8px 16px',
+  borderRadius: '30px', // Округление углов
   cursor: 'pointer',
   fontSize: '14px',
   marginLeft: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(40, 167, 69, 0.3)', // Легкая тень для кнопки
+  transition: 'all 0.3s ease', // Плавный переход
 };
 
+// Убираем границу, делаем округление и добавляем эффект тени
 const deleteButtonStyle = {
   backgroundColor: '#dc3545',
   color: '#fff',
-  padding: '5px 10px',
-  borderRadius: '5px',
+  padding: '8px 16px',
+  borderRadius: '30px',
   cursor: 'pointer',
   fontSize: '14px',
   marginLeft: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(220, 53, 69, 0.3)', // Легкая тень
+  transition: 'all 0.3s ease', // Плавный переход
 };
+
 
 export default RoomDetails;

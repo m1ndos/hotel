@@ -250,22 +250,6 @@ const adminButtonsStyle = {
   right: '20px',
 };
 
-const editButtonStyle = {
-  backgroundColor: '#4caf50',
-  color: 'white',
-  border: 'none',
-  padding: '10px',
-  cursor: 'pointer',
-};
-
-const deleteButtonStyle = {
-  backgroundColor: '#f44336',
-  color: 'white',
-  border: 'none',
-  padding: '10px',
-  cursor: 'pointer',
-};
-
 const addFormStyle = {
   marginTop: '30px',
   display: 'flex',
@@ -283,11 +267,43 @@ const inputStyle = {
 };
 
 const addButtonStyle = {
-  backgroundColor: '#008CBA',
-  color: 'white',
-  padding: '10px',
-  border: 'none',
+  backgroundColor: '#007bff',
+  color: '#fff',
+  padding: '12px 20px',
+  borderRadius: '30px', // Сделаем кнопку с округленными углами
   cursor: 'pointer',
+  fontSize: '16px',
+  marginTop: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(0, 123, 255, 0.3)', // Легкая тень для кнопки
+  transition: 'all 0.3s ease', // Плавный переход
+};
+
+const editButtonStyle = {
+  backgroundColor: '#28a745',
+  color: '#fff',
+  padding: '8px 16px',
+  borderRadius: '30px', // Округление углов
+  cursor: 'pointer',
+  fontSize: '14px',
+  marginLeft: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(40, 167, 69, 0.3)', // Легкая тень для кнопки
+  transition: 'all 0.3s ease', // Плавный переход
+};
+
+// Убираем границу, делаем округление и добавляем эффект тени
+const deleteButtonStyle = {
+  backgroundColor: '#dc3545',
+  color: '#fff',
+  padding: '8px 16px',
+  borderRadius: '30px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  marginLeft: '10px',
+  border: 'none', // Убираем границу
+  boxShadow: '0 4px 8px rgba(220, 53, 69, 0.3)', // Легкая тень
+  transition: 'all 0.3s ease', // Плавный переход
 };
 
 export default Categories;

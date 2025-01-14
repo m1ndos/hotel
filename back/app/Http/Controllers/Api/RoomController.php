@@ -56,7 +56,7 @@ class RoomController extends Controller
         'price' => 'nullable|numeric|min:0', // Валидация для поля цены
         'features' => 'nullable|array',
         'features.*' => 'exists:features,id',
-        'images' => 'nullable|array|max:3',
+        'images' => 'nullable|array',
         'images.*' => 'url',
     ]);
 
